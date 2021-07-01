@@ -19,9 +19,8 @@ public:
 
 	void beginFrame();
 	void present();
-	void endFrame();
 
-	void render(void);
+	void renderImGui(std::function<void()> imguiFunc);
 
 
 

@@ -16,16 +16,26 @@ public:
 
 	void beginFrame();
 	void present();
-	void endFrame();
 
-	void render(std::function<void()> imguiFunc);
+	void renderImGui(std::function<void()> imguiFunc);
 
 
 
 
 private:
-	HRESULT initContext();
 	void initImGui();
+
+	HRESULT initDeviceAndSwapChain();
+	ID3D11RenderTargetView* createRenderTargetView();
+	
+	
+	
+	void clean();
+	template <typename T>
+	void cleanupDX11Object(T* ptr);
+	//void cleanupRenderTargetView(std::unique_ptr<ID3D11RenderTargetView>& u_ptr);
+
+	
 
 	ID3D11Device* m_device;
 	ID3D11DeviceContext* m_deviceContext;

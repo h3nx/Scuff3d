@@ -1,12 +1,14 @@
 #pragma once
 #include <windows.h>
+#include <functional>
 #include "Window/Window32.h"
 #include "Settings/Settings.h"
+#include "Input/Input.h"
 #include "Rendering/DX11/RendererDX11.h"
 #include "Rendering/DX12/RendererDX12.h"
 namespace scuff3d
 {
-	enum RenderingAPI {
+	enum class RenderingAPI {
 		DX11,
 		DX12
 	};
@@ -16,7 +18,7 @@ namespace scuff3d
 		Application();
 		//use with external window
 		Application(HWND hwnd);
-		~Application();
+		virtual ~Application();
 		virtual void exit();
 		void stop();
 
@@ -34,12 +36,12 @@ namespace scuff3d
 		virtual void postUpdate();
 
 		virtual bool preFixedUpdate();
-		virtual bool fixedUpdate();
-		virtual bool postFixedUpdate();
+		virtual void fixedUpdate();
+		virtual void postFixedUpdate();
 
-		virtual void preRender();
-		virtual void render();
-		virtual void postRender();
+		virtual bool preRender();
+		virtual void render(std::function<void()> imguiFunc);
+		virtual void present();
 
 		virtual void endFrame();
 
@@ -53,6 +55,7 @@ namespace scuff3d
 		std::unique_ptr<Renderer> m_renderer;
 		std::unique_ptr<Window32> m_window;
 		std::unique_ptr<Settings> m_basicSettings;
+		std::unique_ptr<Input> m_input;
 		bool m_running;
 		float m_fixedTickTime;
 

@@ -52,6 +52,8 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
     </ClCompile>
     <ClCompile Include="Src\Application.cpp" />
+    <ClCompile Include="Src\Input\Input.cpp" />
+    <ClCompile Include="Src\Input\WindowsKeyCodes.cpp" />
     <ClCompile Include="Src\pch.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
@@ -60,6 +62,8 @@
     <ClCompile Include="Src\Rendering\API\Renderer.cpp" />
     <ClCompile Include="Src\Rendering\DX11\RendererDX11.cpp" />
     <ClCompile Include="Src\Rendering\DX12\RendererDX12.cpp" />
+    <ClCompile Include="Src\Scuff3dImGui\Extensions.cpp" />
+    <ClCompile Include="Src\Scuff3dImGui\Window\Scuff3dImGuiWindow.cpp" />
     <ClCompile Include="Src\Settings\Settings.cpp" />
     <ClCompile Include="Src\Window\Window32.cpp" />
   </ItemGroup>
@@ -74,6 +78,10 @@
     <ClInclude Include="Libraries\imgui\imstb_textedit.h" />
     <ClInclude Include="Libraries\imgui\imstb_truetype.h" />
     <ClInclude Include="Src\Application.h" />
+    <ClInclude Include="Src\Input\Input.h" />
+    <ClInclude Include="Src\Input\WindowsKeyCodes.h" />
+    <ClInclude Include="Src\Scuff3dImGui\Extensions.h" />
+    <ClInclude Include="Src\Scuff3dImGui\Window\Scuff3dImGuiWindow.h" />
     <ClInclude Include="Src\Utils\DataExtensions.h" />
     <ClInclude Include="Src\Utils\Development\ConsoleOutput.h" />
     <ClInclude Include="Src\pch.h" />

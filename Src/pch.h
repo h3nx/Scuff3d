@@ -33,6 +33,11 @@
 #define GLM_ENABLE_EXPERIMENTAL
 #include "glm/ext.hpp"
 
+// ImGui
+
+#include "imgui/imgui.h"
+#include "Scuff3dImGui/Extensions.h"
+
 // Scuff3d
 
 #include "Utils/Development/ConsoleOutput.h"
@@ -40,5 +45,6 @@
 #include "Utils/Conversions.h"
 #include "Utils/FileIO.h"
 #include "Utils/DataExtensions.h"
+#include "Input/WindowsKeyCodes.h"
 
 #endif //PCH_H

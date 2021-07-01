@@ -17,11 +17,10 @@ void RendererDX12::beginFrame() {
 void RendererDX12::present() {
 }
 
-void RendererDX12::endFrame() {
+void RendererDX12::renderImGui(std::function<void()> imguiFunc)
+{
 }
 
-void RendererDX12::render(void) {
-}
 
 void RendererDX12::initImGui() {
 	ImGui::CreateContext();

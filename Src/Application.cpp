@@ -12,6 +12,7 @@ namespace scuff3d
 		m_running(true),
 		m_fixedTickTime(1.0f / 60.0f),
 		m_basicSettings(new Settings("Settings/basic.txt")),
+		m_input(new Input()),
 		m_timeAcc(0.0f), m_dt(0.0f), m_fixedFrame(false)
 	{
 		QueryPerformanceFrequency(&m_frequency);
@@ -54,6 +55,17 @@ namespace scuff3d
 
 	bool Application::initRenderer(RenderingAPI api)
 	{
+		switch (api) {
+		case RenderingAPI::DX11:
+			m_renderer.reset(new RendererDX11(m_handle));
+			return true;
+		case RenderingAPI::DX12:
+			m_renderer.reset(new RendererDX12(m_handle));
+			return true;
+		default:
+			return false;
+		}
+
 		return false;
 	}
 
@@ -84,7 +96,6 @@ namespace scuff3d
 	}
 
 	bool Application::preFixedUpdate() {
-		//DEVLOG("dt:" + std::to_string(dt) +"s");
 		if (!m_fixedFrame)
 			return m_fixedFrame;
 
@@ -93,32 +104,28 @@ namespace scuff3d
 		return m_fixedFrame;
 	}
 
-	bool Application::fixedUpdate() {
-		if (!m_fixedFrame)
-			return m_fixedFrame;
+	void Application::fixedUpdate() {
 
-
-
-		return m_fixedFrame;
 	}
 
-	bool Application::postFixedUpdate() {
-		if (!m_fixedFrame)
-			return m_fixedFrame;
+	void Application::postFixedUpdate() {
 
-
-
-
-		return m_fixedFrame;
 	}
 
-	void Application::preRender() {
+	bool Application::preRender() {
+		if (m_renderer == nullptr)
+			return false;
+		m_renderer->beginFrame();
+		return true;
 	}
 
-	void Application::render() {
+	void Application::render(std::function<void()> imguiFunc) {
+		m_renderer->renderImGui(imguiFunc);
 	}
 
-	void Application::postRender() {
+	void Application::present() {
+
+		m_renderer->present();
 	}
 
 	void Application::endFrame() {
@@ -126,7 +133,28 @@ namespace scuff3d
 
 
 	void Application::wndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) {
-		//ImGui_ImplWin32_WndProcHandler(hWnd, message, wParam, lParam);
+		ImGui_ImplWin32_WndProcHandler(hWnd, message, wParam, lParam);
+
+		switch (message) {
+		case WM_DESTROY:
+			exit();
+			break;
+		case WM_KEYDOWN:
+			DEVLOG("keydown(" + std::to_string(wParam) + ")");
+			break;
+		case WM_KEYUP:
+			DEVLOG("keyup(" + std::to_string(wParam) + ")");
+			break;
+		case WM_SYSKEYDOWN:
+			DEVLOG("syskeydown(" + std::to_string(wParam)+")");
+			break;
+		case WM_SYSKEYUP:
+			DEVLOG("syskeyup(" + std::to_string(wParam) + ")");
+			break;
+
+		}
+
+
 	}
 
 	const bool Application::isRunning() const {
