@@ -1,6 +1,7 @@
 #include "pch.h"
 #include "Application.h"
 #include "Utils/Development/ConsoleOutput.h"
+#include <windowsx.h>
 
 extern LRESULT ImGui_ImplWin32_WndProcHandler(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
 //IMGUI_IMPL_API LRESULT  ImGui_ImplWin32_WndProcHandler(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
@@ -18,6 +19,12 @@ namespace scuff3d
 		QueryPerformanceFrequency(&m_frequency);
 		QueryPerformanceCounter(&m_start);
 		QueryPerformanceCounter(&m_end);
+
+
+
+
+
+
 	}
 	Application::Application(HWND hwnd) : Application::Application()
 	{
@@ -46,6 +53,7 @@ namespace scuff3d
 	bool Application::setWindow(Window32* window)
 	{
 		m_handle = window->getHandle();
+		m_input->setHwnd(m_handle); 
 		m_window.reset(window);
 
 
@@ -71,6 +79,7 @@ namespace scuff3d
 
 	//returns dt
 	float Application::beginFrame() {
+		m_input->beginFrame();
 		m_fixedFrame = false;
 		QueryPerformanceCounter(&m_start);
 		m_dt = (float)((m_start.QuadPart - m_end.QuadPart) * 1.0 / m_frequency.QuadPart);
@@ -132,29 +141,87 @@ namespace scuff3d
 	}
 
 
-	void Application::wndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) {
+	bool Application::wndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) {
 		ImGui_ImplWin32_WndProcHandler(hWnd, message, wParam, lParam);
 
 		switch (message) {
+
 		case WM_DESTROY:
 			exit();
 			break;
-		case WM_KEYDOWN:
-			DEVLOG("keydown(" + std::to_string(wParam) + ")");
+		case WM_SYSCOMMAND:
+			if (wParam == SC_KEYMENU && (lParam >> 16) <= 0) return 0;
 			break;
-		case WM_KEYUP:
+		case WM_KEYDOWN:
+			// Only process first keystroke, skip repeats
+			if ((HIWORD(lParam) & KF_REPEAT) == 0) {
+				m_input->setkeyDown(wParam);
+				DEVLOG("keydown(" + std::to_string(wParam) + ")");
+			}
+			break;
+		case WM_KEYUP: 
+			m_input->setkeyUp(wParam);
 			DEVLOG("keyup(" + std::to_string(wParam) + ")");
 			break;
 		case WM_SYSKEYDOWN:
-			DEVLOG("syskeydown(" + std::to_string(wParam)+")");
+			if ((HIWORD(lParam) & KF_REPEAT) == 0) {
+				m_input->setkeyDown(wParam);
+				DEVLOG("syskeydown(" + std::to_string(wParam) + ")");
+			}
 			break;
 		case WM_SYSKEYUP:
+			m_input->setkeyUp(wParam);
 			DEVLOG("syskeyup(" + std::to_string(wParam) + ")");
 			break;
+
+		 case WM_MBUTTONDOWN:
+			 m_input->setkeyDown(VK_MBUTTON);
+			 DEVLOG("mbuttonDown(" + std::to_string(VK_MBUTTON) + ")");
+			 break;
+		 case WM_RBUTTONDOWN:
+			 m_input->setkeyDown(VK_RBUTTON);
+			 DEVLOG("mbuttonDown(" + std::to_string(VK_RBUTTON) + ")");
+			 break;
+		 case WM_LBUTTONDOWN:
+			 m_input->setkeyDown(VK_LBUTTON);
+			 DEVLOG("mbuttonDown(" + std::to_string(VK_LBUTTON) + ")");
+			 break;
+		 case WM_XBUTTONDOWN:
+			 m_input->setkeyDown(GET_XBUTTON_WPARAM(wParam) == 1 ? VK_XBUTTON1 : VK_XBUTTON2);
+			 DEVLOG("mbuttonDown(" + std::to_string(GET_XBUTTON_WPARAM(wParam)==1? VK_XBUTTON1 : VK_XBUTTON2) + ")");
+			 break;
+
+
+		 case WM_MBUTTONUP:
+			 m_input->setkeyUp(VK_MBUTTON);
+			 DEVLOG("mbuttonUp(" + std::to_string(VK_MBUTTON) + ")");
+			 break;
+		 case WM_RBUTTONUP:
+			 m_input->setkeyUp(VK_RBUTTON);
+			 DEVLOG("mbuttonUp(" + std::to_string(VK_RBUTTON) + ")");
+			 break;
+		 case WM_LBUTTONUP:
+			 m_input->setkeyUp(VK_LBUTTON);
+			 DEVLOG("mbuttonUp(" + std::to_string(VK_LBUTTON) + ")");
+			 break;
+		 case WM_XBUTTONUP:
+			 m_input->setkeyUp(GET_XBUTTON_WPARAM(wParam) == 1 ? VK_XBUTTON1 : VK_XBUTTON2);
+			 DEVLOG("mbuttonUp(" + std::to_string(GET_XBUTTON_WPARAM(wParam) == 1 ? VK_XBUTTON1 : VK_XBUTTON2) + ")");
+			 break;
+
+
+
+		 case WM_MOUSEMOVE:
+			 //DEVLOG(, );
+			 //m_input->updateMousePos((float)GET_X_LPARAM(lParam), (float)GET_Y_LPARAM(lParam));
+			 break;
+
+
 
 		}
 
 
+		return 1;
 	}
 
 	const bool Application::isRunning() const {
@@ -166,3 +233,11 @@ namespace scuff3d
 	}
 
 }
+
+
+//
+//DEVLOG(std::to_string(MK_LBUTTON))
+//DEVLOG(std::to_string(MK_MBUTTON))
+//DEVLOG(std::to_string(MK_RBUTTON))
+//DEVLOG(std::to_string(MK_XBUTTON1))
+//DEVLOG(std::to_string(MK_XBUTTON2))

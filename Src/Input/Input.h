@@ -9,6 +9,7 @@ namespace scuff3d
 	public:
 		Input(const int numKeysToDefine = 256);
 		~Input();
+		void setHwnd(HWND hwnd);
 
 		void beginFrame();
 
@@ -39,10 +40,18 @@ namespace scuff3d
 		void removeActionUp(const int keycode, const int index);
 
 
+
+		void confineCursor(const bool state);
+		void lockCursor(const bool state, const bool savePosition = true);
+		void hideCursor(const bool state);
+
+		void updateMousePos(const glm::vec2& mousePos);
+		void updateMousePos(const float x, const float y);
+
 		void renderImGuiContent();
 
-
 	protected:
+		HWND m_hwnd;
 		class Key {
 		public:
 			Key() {
@@ -60,15 +69,39 @@ namespace scuff3d
 			bool up;
 			
 			void resetFrameState() { down = false;  up = false; }
-
+			void triggerDownActions() {
+				for (auto& func : onDownActions) {
+					if (func)
+						func();
+				}
+			}
+			void triggerUpActions() {
+				for (auto& func : onUpActions) {
+					if(func)
+						func();
+				}
+			}
 		};
 		std::vector<Key> m_keys;
 		std::queue<int> m_keysToReset;
 		std::map<std::string, int> m_keybinds;
 
+
+		//TODO: Tidy this shite
+		glm::vec2 m_mousePosition;
+		glm::vec2 m_savedMousePos;
+		RECT m_windowRect;
+		glm::vec2 m_lockPosition;
+		glm::vec2 m_mouseDelta;
+
+		bool m_confineCursor;
+		bool m_lockCursor;
+		bool m_hideCursor;
+		bool m_lockedThisFrame;
+
+
 	private:
 		void initKey(const int index);
-
 
 		void renderKeycodeDropdown(const std::string& title, int&keycode);
 

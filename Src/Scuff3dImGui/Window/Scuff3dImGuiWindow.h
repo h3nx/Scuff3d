@@ -26,7 +26,7 @@ namespace scuff3d {
 		void show();
 		void hide();
 
-
+		const glm::vec2 getPosition();
 
 
 	private:
@@ -38,6 +38,7 @@ namespace scuff3d {
 		ImVec2 m_size;
 		bool m_active;
 		ImGuiWindowFlags m_flags;
+		bool m_posDirty;
 
 
 	};

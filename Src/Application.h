@@ -45,7 +45,7 @@ namespace scuff3d
 
 		virtual void endFrame();
 
-		virtual void wndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam);
+		virtual bool wndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam);
 
 		const bool isRunning() const;
 		const float getFixedTickTime() const;

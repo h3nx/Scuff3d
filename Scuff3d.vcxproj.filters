@@ -93,6 +93,18 @@
     <ClInclude Include="Src\Scuff3dImGui\Extensions.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="Src\Rendering\API\Camera\Camera.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Src\Rendering\API\Geometry\Transform.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Src\Scuff3dImGui\Widgets\GlmWidgets.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Src\Scuff3dImGui\Widgets\RenderingAPI.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Src\pch.cpp">
@@ -153,6 +165,18 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Src\Input\WindowsKeyCodes.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Src\Rendering\API\Camera\Camera.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Src\Rendering\API\Geometry\Transform.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Src\Scuff3dImGui\Widgets\GlmWidgets.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Src\Scuff3dImGui\Widgets\RenderingAPI.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

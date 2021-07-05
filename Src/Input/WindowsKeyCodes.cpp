@@ -8,6 +8,30 @@ namespace scuff3d {
 	const std::string keycodeName(const int keycode)
 	{
 		switch(keycode) {
+		case VK_LBUTTON: return "Left mouse";
+		case VK_RBUTTON: return "Right mouse";
+		case VK_MBUTTON: return "Middle mouse button ";
+		case VK_XBUTTON1: return "X1 mouse button";
+		case VK_XBUTTON2: return "X2 mouse button";
+		case VK_SHIFT: return "Shift";
+		case VK_CONTROL: return "Ctrl";
+		case VK_MENU: return "Alt";
+		case VK_PAUSE: return "Pause";
+		case VK_PRIOR: return "Pgup";
+		case VK_NEXT: return "Pgdown";
+		case VK_END: return "End";
+		case VK_HOME: return "Home";
+		case VK_LEFT: return "Left";
+		case VK_UP: return "Up";
+		case VK_RIGHT: return "Right";
+		case VK_DOWN: return "Down";
+		case VK_SNAPSHOT: return "Print screen";
+		case VK_INSERT: return "Insert";
+		case VK_DELETE: return "Delete";
+		case VK_HELP: return "Help";
+
+
+
 		case VK_ABNT_C1			: return "Abnt C1";
 		case VK_ABNT_C2			: return "Abnt C2";
 		case VK_ADD				: return "Numpad +";

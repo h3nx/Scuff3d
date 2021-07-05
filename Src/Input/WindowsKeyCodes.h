@@ -67,15 +67,15 @@ namespace scuff3d
 #define VK_NUMPAD7			0x67 //	Numpad 7
 #define VK_NUMPAD8			0x68 //	Numpad 8
 #define VK_NUMPAD9			0x69 //	Numpad 9
-#define VK_OEM_1			0xBA //	OEM_1(:;)
-#define VK_OEM_102			0xE2 //	OEM_102(> < )
-#define VK_OEM_2			0xBF //	OEM_2(? / )
-#define VK_OEM_3			0xC0 //	OEM_3(~`)
-#define VK_OEM_4			0xDB //	OEM_4({ [)
-#define VK_OEM_5			0xDC //	OEM_5(| \)
-#define VK_OEM_6			0xDD //	OEM_6(}] )
-#define VK_OEM_7			0xDE //	OEM_7(" ')
-#define VK_OEM_8			0xDF //	OEM_8(§ !)
+//#define VK_OEM_1			0xBA //	OEM_1(:;)
+//#define VK_OEM_102			0xE2 //	OEM_102(> < )
+//#define VK_OEM_2			0xBF //	OEM_2(? / )
+//#define VK_OEM_3			0xC0 //	OEM_3(~`)
+//#define VK_OEM_4			0xDB //	OEM_4({ [)
+//#define VK_OEM_5			0xDC //	OEM_5(| \)
+//#define VK_OEM_6			0xDD //	OEM_6(}] )
+//#define VK_OEM_7			0xDE //	OEM_7(" ')
+//#define VK_OEM_8			0xDF //	OEM_8(§ !)
 #define VK_OEM_ATTN			0xF0 //	Oem Attn
 #define VK_OEM_AUTO			0xF3 //	Auto
 #define VK_OEM_AX			0xE1 //	Ax
