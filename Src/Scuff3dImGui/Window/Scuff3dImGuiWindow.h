@@ -3,12 +3,20 @@
 namespace scuff3d {
 	class Scuff3dImGuiWindow {
 	public:
+
 		Scuff3dImGuiWindow(
 			const std::string& title, 
 			const ImVec2& pos = ImVec2(0.0f,0.0f), 
-			const ImVec2& size = ImVec2(640,360),
+			const ImVec2& size = ImVec2(0.0f, 0.0f),
 			const bool lockPosition = false,
 			const bool lockSize = false
+		); 
+		Scuff3dImGuiWindow(
+			const std::string& title,
+			const bool lockPosition = false,
+			const bool lockSize = false,
+			const ImVec2& pos = ImVec2(0.0f, 0.0f),
+			const ImVec2& size = ImVec2(0.0f, 0.0f)
 		);
 		~Scuff3dImGuiWindow();
 
@@ -27,6 +35,7 @@ namespace scuff3d {
 		void hide();
 
 		const glm::vec2 getPosition();
+		const std::string& getTitle() const;
 
 
 	private:
@@ -36,6 +45,7 @@ namespace scuff3d {
 		std::string m_title;
 		ImVec2 m_position;
 		ImVec2 m_size;
+		ImVec2 m_originalSize;
 		bool m_active;
 		ImGuiWindowFlags m_flags;
 		bool m_posDirty;

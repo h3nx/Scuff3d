@@ -54,19 +54,26 @@
     <ClCompile Include="Src\Application.cpp" />
     <ClCompile Include="Src\Input\Input.cpp" />
     <ClCompile Include="Src\Input\WindowsKeyCodes.cpp" />
+    <ClCompile Include="Src\Objects\Component.cpp" />
+    <ClCompile Include="Src\Objects\Components\Transform.cpp" />
+    <ClCompile Include="Src\Objects\Object.cpp" />
     <ClCompile Include="Src\pch.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
     </ClCompile>
     <ClCompile Include="Src\PerformaceTracker\PerformanceTracker.cpp" />
     <ClCompile Include="Src\Rendering\API\Camera\Camera.cpp" />
-    <ClCompile Include="Src\Rendering\API\Geometry\Transform.cpp" />
+    <ClCompile Include="Src\Rendering\API\Geometry\Mesh.cpp" />
+    <ClCompile Include="Src\Rendering\API\Geometry\Model.cpp" />
+    <ClCompile Include="Src\Rendering\API\Geometry\TransformData.cpp" />
     <ClCompile Include="Src\Rendering\API\Renderer.cpp" />
     <ClCompile Include="Src\Rendering\DX11\RendererDX11.cpp" />
     <ClCompile Include="Src\Rendering\DX12\RendererDX12.cpp" />
+    <ClCompile Include="Src\ResourceManager\ResourceManager.cpp" />
+    <ClCompile Include="Src\Scene.cpp" />
     <ClCompile Include="Src\Scuff3dImGui\Extensions.cpp" />
     <ClCompile Include="Src\Scuff3dImGui\Widgets\GlmWidgets.cpp" />
-    <ClCompile Include="Src\Scuff3dImGui\Widgets\RenderingAPI.cpp" />
+    <ClCompile Include="Src\Scuff3dImGui\Widgets\RenderingAPIWidgets.cpp" />
     <ClCompile Include="Src\Scuff3dImGui\Window\Scuff3dImGuiWindow.cpp" />
     <ClCompile Include="Src\Settings\Settings.cpp" />
     <ClCompile Include="Src\Window\Window32.cpp" />
@@ -84,11 +91,20 @@
     <ClInclude Include="Src\Application.h" />
     <ClInclude Include="Src\Input\Input.h" />
     <ClInclude Include="Src\Input\WindowsKeyCodes.h" />
+    <ClInclude Include="Src\Objects\Component.h" />
+    <ClInclude Include="Src\Objects\Components\Animator.h" />
+    <ClInclude Include="Src\Objects\Components\Model.h" />
+    <ClInclude Include="Src\Objects\Components\Transform.h" />
+    <ClInclude Include="Src\Objects\Object.h" />
     <ClInclude Include="Src\Rendering\API\Camera\Camera.h" />
-    <ClInclude Include="Src\Rendering\API\Geometry\Transform.h" />
+    <ClInclude Include="Src\Rendering\API\Geometry\Mesh.h" />
+    <ClInclude Include="Src\Rendering\API\Geometry\Model.h" />
+    <ClInclude Include="Src\Rendering\API\Geometry\TransformData.h" />
+    <ClInclude Include="Src\ResourceManager\ResourceManager.h" />
+    <ClInclude Include="Src\Scene.h" />
     <ClInclude Include="Src\Scuff3dImGui\Extensions.h" />
     <ClInclude Include="Src\Scuff3dImGui\Widgets\GlmWidgets.h" />
-    <ClInclude Include="Src\Scuff3dImGui\Widgets\RenderingAPI.h" />
+    <ClInclude Include="Src\Scuff3dImGui\Widgets\RenderingAPIWidgets.h" />
     <ClInclude Include="Src\Scuff3dImGui\Window\Scuff3dImGuiWindow.h" />
     <ClInclude Include="Src\Utils\DataExtensions.h" />
     <ClInclude Include="Src\Utils\Development\ConsoleOutput.h" />
@@ -99,7 +115,7 @@
     <ClInclude Include="Src\Rendering\DX12\RendererDX12.h" />
     <ClInclude Include="Src\Settings\Settings.h" />
     <ClInclude Include="Src\Utils\Console.h" />
-    <ClInclude Include="Src\Utils\Conversions.h" />
+    <ClInclude Include="Src\Utils\Conversions.hpp" />
     <ClInclude Include="Src\Utils\FileIO.h" />
     <ClInclude Include="Src\Window\Window32.h" />
   </ItemGroup>

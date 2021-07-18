@@ -42,12 +42,12 @@
 
 #include "Utils/Development/ConsoleOutput.h"
 #include "Utils/Console.h"
-#include "Utils/Conversions.h"
+#include "Utils/Conversions.hpp"
 #include "Utils/FileIO.h"
 #include "Utils/DataExtensions.h"
 #include "Input/WindowsKeyCodes.h"
 
-#include "Rendering/API/Geometry/Transform.h"
+#include "Rendering/API/Geometry/TransformData.h"
 
 
 

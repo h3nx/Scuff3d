@@ -101,7 +101,7 @@ namespace scuff3d {
 		case VK_OEM_2			: return "OEM_2(? / )";
 		case VK_OEM_3			: return "OEM_3(~`)";
 		case VK_OEM_4			: return "OEM_4({ [)";
-		case VK_OEM_5			: return "OEM_5(| \)";
+		case VK_OEM_5			: return "OEM_5(| )";
 		case VK_OEM_6			: return "OEM_6(}] )";
 		case VK_OEM_7			: return "OEM_7(\" ')";
 		case VK_OEM_8			: return "OEM_8(§ !)";

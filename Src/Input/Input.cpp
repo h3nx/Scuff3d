@@ -29,7 +29,7 @@ namespace scuff3d
 		GetCursorPos(&p);
 		//ClientToScreen(m_hwnd, &p);
 		ScreenToClient(m_hwnd, &p);
-		updateMousePos(p.x,p.y);
+		updateMousePos((float)p.x,(float)p.y);
 		m_lockedThisFrame = false;
 	}
 
@@ -76,14 +76,14 @@ namespace scuff3d
 	}
 	const int Input::addActionDown(const int keycode, std::function<void()> func) {
 		m_keys[keycode].onDownActions.push_back(func);
-		return m_keys[keycode].onDownActions.size()-1;
+		return (int)m_keys[keycode].onDownActions.size()-1;
 	}
 	const int Input::addActionUp(const std::string& keybind, std::function<void()> func) {
 		return addActionUp(m_keybinds[keybind], func);
 	}
 	const int Input::addActionUp(const int keycode, std::function<void()> func) {
 		m_keys[keycode].onUpActions.push_back(func);
-		return m_keys[keycode].onUpActions.size() - 1;
+		return (int)m_keys[keycode].onUpActions.size() - 1;
 	}
 
 	void Input::removeActionDown(const std::string& keybind, const int index) {
@@ -133,19 +133,19 @@ namespace scuff3d
 			SetRect(&m_windowRect, pt.x, pt.y, pt2.x, pt2.y);
 			if (savePosition) {
 
-				POINT mousepos = { m_mousePosition.x, m_mousePosition.y };
+				POINT mousepos = { (long)m_mousePosition.x, (long)m_mousePosition.y };
 				ClientToScreen(m_hwnd, &mousepos);
 
 				m_savedMousePos = glm::vec2(mousepos.x, mousepos.y);
 				//savePosition 
 			}
-			m_lockPosition.x = (int)(float((float)m_windowRect.left + (float)m_windowRect.right) * 0.5f);
-			m_lockPosition.y = (int)(float((float)m_windowRect.top + (float)m_windowRect.bottom) * 0.5f);
+			m_lockPosition.x = (float)(int)(float((float)m_windowRect.left + (float)m_windowRect.right) * 0.5f);
+			m_lockPosition.y = (float)(int)(float((float)m_windowRect.top + (float)m_windowRect.bottom) * 0.5f);
 			m_mousePosition = m_lockPosition;
 		}
 		else {
 			if (savePosition) {
-				SetCursorPos(m_savedMousePos.x, m_savedMousePos.y);
+				SetCursorPos((int)m_savedMousePos.x, (int)m_savedMousePos.y);
 			}
 		}
 	}
@@ -160,7 +160,7 @@ namespace scuff3d
 		}
 		
 		if (m_lockCursor) {
-			SetCursorPos(m_lockPosition.x, m_lockPosition.y); // screenspace
+			SetCursorPos((int)m_lockPosition.x, (int)m_lockPosition.y); // screenspace
 
 			m_mousePosition = m_lockPosition - glm::vec2((float)m_windowRect.left,(float)m_windowRect.top);
 		}

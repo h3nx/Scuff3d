@@ -7,22 +7,30 @@ namespace scuff3d
 		m_title = title;
 		m_position = pos;
 		m_size = size;
+		m_originalSize = size;
 		m_lockPosition = lockPosition;
 		m_lockSize = lockSize;
 		m_flags = 0;
 		m_posDirty = true;
 	}
 
+	Scuff3dImGuiWindow::Scuff3dImGuiWindow(const std::string& title, const bool lockPosition, const bool lockSize, const ImVec2& pos, const ImVec2& size) :
+	Scuff3dImGuiWindow(title, pos,size,lockPosition,lockSize)
+	{}
+
 	Scuff3dImGuiWindow::~Scuff3dImGuiWindow() {
 
 	}
 
 	void Scuff3dImGuiWindow::render(std::function<void()> content) {
+		if (!m_active)
+			return;
 		if (m_posDirty) {
 			ImGui::SetNextWindowPos(m_position);
 			m_posDirty = false;
 		}
-		ImGui::SetNextWindowSize(m_size, ImGuiCond_Once);
+		ImGui::SetNextWindowSize(m_originalSize);
+		//ImGui::SetNextWindowSize(ImVec2(0, 0));
 
 		ImGuiWindowFlags flags = m_flags;
 		if (m_lockSize) { flags |= ImGuiWindowFlags_NoResize; }
@@ -48,6 +56,7 @@ namespace scuff3d
 	}
 	void Scuff3dImGuiWindow::setSize(const ImVec2& size) {
 		m_size = size;
+		m_originalSize = size;
 	}
 
 	void Scuff3dImGuiWindow::setFlags(const ImGuiWindowFlags& flags) {
@@ -77,6 +86,11 @@ namespace scuff3d
 	const glm::vec2 Scuff3dImGuiWindow::getPosition()
 	{
 		return glm::vec2(m_position.x,m_position.y);
+	}
+
+	const std::string& Scuff3dImGuiWindow::getTitle() const
+	{
+		return m_title;
 	}
 
 }

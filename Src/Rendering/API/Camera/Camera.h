@@ -1,10 +1,10 @@
 #pragma once
-#include "Rendering/API/Geometry/Transform.h"
+#include "Rendering/API/Geometry/TransformData.h"
 
 
 namespace scuff3d {
 
-	class Camera : public Transform{
+	class Camera : public TransformData{
 	public:
 		Camera();
 		virtual ~Camera();
