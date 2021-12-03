@@ -1,13 +1,15 @@
 #pragma once
 #include <windows.h>
 #include <functional>
-#include "Window/Window32.h"
+#include "Window/Scuff3dWindow32.h"
 #include "Settings/Settings.h"
 #include "Input/Input.h"
 #include "Rendering/DX11/RendererDX11.h"
 #include "Rendering/DX12/RendererDX12.h"
 #include "Scene.h"
 #include "Scuff3dImGui/Window/Scuff3dImGuiWindow.h"
+#include "ResourceManager/ResourceManager.h"
+#include "PerformaceTracker\PerformanceTracker.h"
 
 namespace scuff3d
 {
@@ -29,8 +31,24 @@ namespace scuff3d
 
 		//bool initWindow(const glm::vec2& size = glm::vec2(1280, 720), const glm::vec2& pos = glm::vec2(0,0));
 		bool setWindow(HWND hwnd);
-		bool setWindow(Window32* window);
+		bool setWindow(Scuff3dWindow32* window);
+		// windowed
+		Scuff3dWindow32* createWindow(HINSTANCE hInstance, WNDPROC wndProc, const std::string& name, const glm::vec2& size, const glm::vec2& pos, const bool maximised = false);
+		// fullscreen
+		Scuff3dWindow32* createWindow(HINSTANCE hInstance, WNDPROC wndProc, const std::string& name);
+		
 		bool initRenderer(RenderingAPI api);
+		Renderer* getRenderer() { return m_renderer.get(); };
+
+		ResourceManager* getResourceManager() { return m_resourceManager.get(); };
+		
+		Input* getInput();
+
+
+
+		/*
+			Frame Stuff
+		*/
 
 		void Frame(std::function<void()> imguiFunc);
 
@@ -44,7 +62,7 @@ namespace scuff3d
 		virtual void fixedUpdate(const float dt);
 		virtual void postFixedUpdate(const float dt);
 
-		virtual void preRender();
+		virtual bool preRender();
 		virtual void render(std::function<void()> imguiFunc);
 		virtual void present();
 
@@ -52,8 +70,17 @@ namespace scuff3d
 
 		virtual bool wndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam);
 
+		/*
+			Getting stuff
+		*/
+
+
 		const bool isRunning() const;
 		const float getFixedTickTime() const;
+
+		/*
+			Scene stuff
+		*/
 
 		void loadScene(Scene* scene);
 		void loadSceneAsync(Scene* scene);
@@ -69,9 +96,10 @@ namespace scuff3d
 	protected:
 		HWND m_handle;
 		std::unique_ptr<Renderer> m_renderer;
-		std::unique_ptr<Window32> m_window;
+		Scuff3dWindow32* m_window;
 		std::unique_ptr<Settings> m_basicSettings;
-		std::unique_ptr<Input> m_input;
+		std::unique_ptr<ResourceManager> m_resourceManager;
+		std::unique_ptr<PerformanceTracker> m_performanceTracker;
 		std::vector<Scene*> m_sceneStack;
 		bool m_running;
 		float m_fixedTickTime;
@@ -84,23 +112,39 @@ namespace scuff3d
 		bool m_fixedFrame;
 
 
+#ifdef _EDITOR
+		Scuff3dWindow32* m_editorWindow;
+		GameObject* m_editorCamera;
+#endif
 
+		void resizedWindow(HWND hWnd);
+		void resizedWindow(const int x, const int y);
 
 		//IMGUI STUFF
 
 
-		std::unique_ptr<scuff3d::Scuff3dImGuiWindow> m_toggleDebugWindow;
-		std::unique_ptr<scuff3d::Scuff3dImGuiWindow> m_rendererDebugWindow;
-		std::unique_ptr<scuff3d::Scuff3dImGuiWindow> m_windowDebugWindow;
-		std::unique_ptr<scuff3d::Scuff3dImGuiWindow> m_settingsDebugWindow;
-		std::unique_ptr<scuff3d::Scuff3dImGuiWindow> m_scenesDebugWindow;
+		std::map<std::string, scuff3d::Scuff3dImGuiWindow*> m_debugWindows;
 
 		void renderImGuiDebug_toggle();
+		void renderImGuiDebug_testing();
+		void renderImGuiDebug_renderer();
+		//void renderImGuiDebug_window();
+		void renderImGuiDebug_settings();
 		void renderImGuiDebug_scenes();
+		void renderImGuiDebug_resourceManager();
+		void renderImGuiDebug_input();
+		void renderImGuiDebug_perf();
 
+		//bool editorWndProc(HWND hWnd, UINT message, WPARAM, LPARAM lParam);
 
 
 	private:
+
+//#ifdef _EDITOR
+//		void updateEditor(const float dt);
+//		void updateEditorFixed(const float dt);
+//		void renderEditor();
+//#endif
 
 		void processSceneChanges();
 		enum class SceneChanges {

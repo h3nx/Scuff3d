@@ -3,8 +3,7 @@
 #include <queue>
 #include "WindowsKeyCodes.h"
 
-namespace scuff3d
-{
+namespace scuff3d {
 	class Input {
 	public:
 		Input(const int numKeysToDefine = 256);
@@ -12,19 +11,23 @@ namespace scuff3d
 		void setHwnd(HWND hwnd);
 
 		void beginFrame();
-
-		//KEYCODES
-		void setkeyDown(const int key);
-		void setkeyUp(const int key);
+		void endFrame();
 
 		const bool keyDown(const int key);
 		const bool keyUp(const int key);
 		const bool keyPressed(const int key);
+		const bool keybindDown(const std::string& keybind);
+		const bool keybindUp(const std::string& keybind);
+		const bool keybindPressed(const std::string& keybind);
 
+		const glm::vec2 getMouseDelta() const;
+		const glm::vec2 getMousePos() const;
+
+		
+		
 
 		void setKeybind(const std::string& name, const int keycode);
 		void removeKeybind(const std::string& name);
-
 
 		//ACTIONS
 		// returning storage index
@@ -45,9 +48,17 @@ namespace scuff3d
 		void lockCursor(const bool state, const bool savePosition = true);
 		void hideCursor(const bool state);
 
+
+		//UPDATES
+		void setkeyDown(const int key);
+		void setkeyUp(const int key);
+		void setAllKeysUp();
+
 		void updateMousePos(const glm::vec2& mousePos);
 		void updateMousePos(const float x, const float y);
 
+
+		//DEBUG
 		void renderImGuiContent();
 
 	protected:
@@ -86,7 +97,6 @@ namespace scuff3d
 		std::queue<int> m_keysToReset;
 		std::map<std::string, int> m_keybinds;
 
-
 		//TODO: Tidy this shite
 		glm::vec2 m_mousePosition;
 		glm::vec2 m_savedMousePos;
@@ -99,6 +109,7 @@ namespace scuff3d
 		bool m_hideCursor;
 		bool m_lockedThisFrame;
 
+		glm::vec2 m_accDelta;
 
 	private:
 		void initKey(const int index);

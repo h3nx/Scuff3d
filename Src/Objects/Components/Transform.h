@@ -4,6 +4,7 @@
 #include <vector>
 #include <string>
 
+#pragma message("transform")
 namespace scuff3d
 {
 	class Transform : 
@@ -11,7 +12,7 @@ namespace scuff3d
 		public TransformData
 	{
 	public:
-		explicit Transform(Transform * parent) : Component<Transform>(), TransformData() {};
+		explicit Transform(Transform* parent);
 		Transform(const glm::vec3& translation, Transform* parent);
 		Transform(
 			const glm::vec3& translation = { 0.0f, 0.0f, 0.0f },
@@ -20,23 +21,15 @@ namespace scuff3d
 			Transform* parent = nullptr);
 
 		~Transform();
-		
+		Transform* getParent();
 
 
-		//const Transform* getParent() const;
-		//void setParent(const Transform* parent);
+		void renderImGui();
 
-		//void detachChildren();
-		//void removeChild(const Transform* child);
 
-		//const std::vector<Transform*>& getChildren() const;
-		//const Transform* getChild(int index) const;
-		//const Transform* getChild(size_t id) const;
-		//const Transform* getChild(const std::string& name) const;
 
 	private:
 
-		Transform* m_parent;
 
 
 	};

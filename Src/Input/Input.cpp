@@ -19,32 +19,43 @@ namespace scuff3d
 	}
 
 	void Input::beginFrame() {
-		while (m_keysToReset.size() > 0) {
-			m_keys[m_keysToReset.front()].resetFrameState();
-			m_keysToReset.pop();
-		}
-		m_mouseDelta = glm::zero<glm::vec2>();
-
 		POINT p;
 		GetCursorPos(&p);
-		//ClientToScreen(m_hwnd, &p);
 		ScreenToClient(m_hwnd, &p);
 		updateMousePos((float)p.x,(float)p.y);
 		m_lockedThisFrame = false;
 	}
+	void Input::endFrame() { 
+		while (m_keysToReset.size() > 0) {
+			m_keys[m_keysToReset.front()].resetFrameState();
+			m_keysToReset.pop();
+		}
+	}
 
 	void Input::setkeyDown(const int key) {
+		DEVLOG("keydown: (" + std::to_string(key) + ")" + keycodeName(key));
 		m_keys[key].down = true;
 		m_keys[key].state = true;
 		m_keys[key].triggerDownActions();
 		m_keysToReset.push(key);
 	}
 	void Input::setkeyUp(const int key) {
+		DEVLOG("keyup: (" + std::to_string(key) + ")" + keycodeName(key));
 		m_keys[key].up = true;
 		m_keys[key].state = false;
 		m_keys[key].triggerUpActions();
 		m_keysToReset.push(key);
 
+	}
+
+	void Input::setAllKeysUp() {
+		int i = 0; 
+		for (auto& key : m_keys) {
+			if (key.state) {
+				setkeyUp(i);
+			}
+			i++;
+		}
 	}
 
 
@@ -59,6 +70,24 @@ namespace scuff3d
 	const bool Input::keyPressed(const int key) {
 
 		return m_keys[key].state;
+	}
+
+	const bool Input::keybindDown(const std::string& keybind) {
+		return m_keys[m_keybinds[keybind]].down;
+	}
+	const bool Input::keybindUp(const std::string& keybind) {
+		return m_keys[m_keybinds[keybind]].up;
+	}
+	const bool Input::keybindPressed(const std::string& keybind) {
+		return m_keys[m_keybinds[keybind]].state;
+	}
+
+	const glm::vec2 Input::getMouseDelta() const {
+		return m_mouseDelta;
+	}
+
+	const glm::vec2 Input::getMousePos() const {
+		return m_mousePosition;
 	}
 
 
@@ -155,25 +184,20 @@ namespace scuff3d
 
 	void Input::updateMousePos(const glm::vec2& mousePos) {
 		if (!m_lockedThisFrame) {
-			m_mouseDelta = m_mousePosition - mousePos;
-
+			m_mouseDelta = mousePos-m_mousePosition;
 		}
-		
 		if (m_lockCursor) {
 			SetCursorPos((int)m_lockPosition.x, (int)m_lockPosition.y); // screenspace
-
 			m_mousePosition = m_lockPosition - glm::vec2((float)m_windowRect.left,(float)m_windowRect.top);
 		}
 		else {
 			m_mousePosition = mousePos;
 		}
 
-
 	}
-
-	void Input::updateMousePos(const float x, const float y)
+	void  Input::updateMousePos(const float x, const float y)
 	{
-		updateMousePos(glm::vec2(x, y));
+		return updateMousePos(glm::vec2(x, y));
 	}
 
 	//void Input::setScreenCenter(const glm::vec2& center) {
@@ -197,8 +221,6 @@ namespace scuff3d
 			ImGui::Text("Delta("+std::to_string(m_mouseDelta.x)+","+ std::to_string(m_mouseDelta.y)+")");
 			ImGui::Text("SavedPos("+std::to_string(m_savedMousePos.x)+","+ std::to_string(m_savedMousePos.y)+")");
 			ImGui::Text("LockPos("+std::to_string(m_lockPosition.x)+","+ std::to_string(m_lockPosition.y)+")");
-			ImGui::Text("");
-			ImGui::Text("Test("+std::to_string(temp.x)+","+std::to_string(temp.y)+")");
 		}
 
 		if (ImGui::CollapsingHeader("Keybinds")) {
@@ -256,7 +278,6 @@ namespace scuff3d
 		}
 	
 	}
-
 	void Input::renderKeycodeDropdown(const std::string& title, int & keycode)
 	{
 		if (ImGui::BeginCombo(("##keycodeCombo"+title).c_str(), (keycodeName(keycode) + "(" + std::to_string(keycode) + ")").c_str(), ImGuiComboFlags_NoArrowButton)) {

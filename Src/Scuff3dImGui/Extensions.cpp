@@ -6,18 +6,11 @@
 namespace ImGui
 {
 
-	void Text(const std::string& str)
-	{
-		ImGui::Text(str.c_str());
-	}
-
-	bool Button(const std::string& str, const ImVec2& size_arg)
-	{
-		return ImGui::Button(str.c_str(), size_arg);
-	}
-
 
     static ImVector<ImRect> s_GroupPanelLabelStack;
+    void BeginGroupPanel(const std::string& name, const ImVec2& size) {
+        BeginGroupPanel(name.c_str(), size);
+    }
     void BeginGroupPanel(const char* name, const ImVec2& size)
     {
         ImGui::BeginGroup();

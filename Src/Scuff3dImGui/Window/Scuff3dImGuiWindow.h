@@ -13,6 +13,14 @@ namespace scuff3d {
 		); 
 		Scuff3dImGuiWindow(
 			const std::string& title,
+			const std::function<void()> externalFunction,
+			const ImVec2& pos = ImVec2(0.0f, 0.0f),
+			const ImVec2& size = ImVec2(0.0f, 0.0f),
+			const bool lockPosition = false,
+			const bool lockSize = false
+		);
+		Scuff3dImGuiWindow(
+			const std::string& title,
 			const bool lockPosition = false,
 			const bool lockSize = false,
 			const ImVec2& pos = ImVec2(0.0f, 0.0f),
@@ -21,10 +29,12 @@ namespace scuff3d {
 		~Scuff3dImGuiWindow();
 
 
-		void render(std::function<void()> content);
+		virtual void render(const float& dt = 0.0f);
+		virtual void render(std::function<void()> content, const float& dt = 0.0f);
 
 		void setWindowTitle(const std::string& title);
 		void setPosition(const ImVec2& pos);
+		void setPosition(const float& x, const float& y);
 		void setSize(const ImVec2& size);
 		void setFlags(const ImGuiWindowFlags& flags);
 
@@ -35,6 +45,7 @@ namespace scuff3d {
 		void hide();
 
 		const glm::vec2 getPosition();
+		const glm::vec2 getSize(const bool originalSize);
 		const std::string& getTitle() const;
 
 
@@ -49,6 +60,8 @@ namespace scuff3d {
 		bool m_active;
 		ImGuiWindowFlags m_flags;
 		bool m_posDirty;
+
+		std::function<void()> m_externalFunction;
 
 
 	};

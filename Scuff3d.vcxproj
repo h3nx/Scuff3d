@@ -21,40 +21,35 @@
   <ItemGroup>
     <ClCompile Include="Libraries\imgui\imgui.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
     </ClCompile>
     <ClCompile Include="Libraries\imgui\imgui_demo.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
     </ClCompile>
     <ClCompile Include="Libraries\imgui\imgui_draw.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
     </ClCompile>
     <ClCompile Include="Libraries\imgui\imgui_impl_dx11.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
     </ClCompile>
     <ClCompile Include="Libraries\imgui\imgui_impl_dx12.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
     </ClCompile>
     <ClCompile Include="Libraries\imgui\imgui_impl_win32.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
     </ClCompile>
     <ClCompile Include="Libraries\imgui\imgui_tables.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
     </ClCompile>
     <ClCompile Include="Libraries\imgui\imgui_widgets.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
     </ClCompile>
     <ClCompile Include="Src\Application.cpp" />
     <ClCompile Include="Src\Input\Input.cpp" />
     <ClCompile Include="Src\Input\WindowsKeyCodes.cpp" />
     <ClCompile Include="Src\Objects\Component.cpp" />
+    <ClCompile Include="Src\Objects\Components\Camera.cpp" />
+    <ClCompile Include="Src\Objects\Components\CameraController.cpp" />
+    <ClCompile Include="Src\Objects\Components\Physics3D\BasicPhysics.cpp" />
     <ClCompile Include="Src\Objects\Components\Transform.cpp" />
     <ClCompile Include="Src\Objects\Object.cpp" />
     <ClCompile Include="Src\pch.cpp">
@@ -62,12 +57,16 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
     </ClCompile>
     <ClCompile Include="Src\PerformaceTracker\PerformanceTracker.cpp" />
-    <ClCompile Include="Src\Rendering\API\Camera\Camera.cpp" />
+    <ClCompile Include="Src\Rendering\API\Camera\CameraData.cpp" />
     <ClCompile Include="Src\Rendering\API\Geometry\Mesh.cpp" />
-    <ClCompile Include="Src\Rendering\API\Geometry\Model.cpp" />
+    <ClCompile Include="Src\Rendering\API\Geometry\ModelData.cpp" />
     <ClCompile Include="Src\Rendering\API\Geometry\TransformData.cpp" />
     <ClCompile Include="Src\Rendering\API\Renderer.cpp" />
+    <ClCompile Include="Src\Rendering\API\Shader\Shader.cpp" />
+    <ClCompile Include="Src\Rendering\DX11\Model\ModelDX11.cpp" />
     <ClCompile Include="Src\Rendering\DX11\RendererDX11.cpp" />
+    <ClCompile Include="Src\Rendering\DX11\Shaders\PixelShaderDX11.cpp" />
+    <ClCompile Include="Src\Rendering\DX11\Shaders\VertexShaderDX11.cpp" />
     <ClCompile Include="Src\Rendering\DX12\RendererDX12.cpp" />
     <ClCompile Include="Src\ResourceManager\ResourceManager.cpp" />
     <ClCompile Include="Src\Scene.cpp" />
@@ -76,6 +75,7 @@
     <ClCompile Include="Src\Scuff3dImGui\Widgets\RenderingAPIWidgets.cpp" />
     <ClCompile Include="Src\Scuff3dImGui\Window\Scuff3dImGuiWindow.cpp" />
     <ClCompile Include="Src\Settings\Settings.cpp" />
+    <ClCompile Include="Src\Window\Scuff3dWindow32.cpp" />
     <ClCompile Include="Src\Window\Window32.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -92,20 +92,31 @@
     <ClInclude Include="Src\Input\Input.h" />
     <ClInclude Include="Src\Input\WindowsKeyCodes.h" />
     <ClInclude Include="Src\Objects\Component.h" />
+    <ClInclude Include="Src\Objects\Components.h" />
     <ClInclude Include="Src\Objects\Components\Animator.h" />
+    <ClInclude Include="Src\Objects\Components\Camera.h" />
+    <ClInclude Include="Src\Objects\Components\CameraController.h" />
     <ClInclude Include="Src\Objects\Components\Model.h" />
+    <ClInclude Include="Src\Objects\Components\Physics3D\BasicPhysics.h" />
     <ClInclude Include="Src\Objects\Components\Transform.h" />
     <ClInclude Include="Src\Objects\Object.h" />
-    <ClInclude Include="Src\Rendering\API\Camera\Camera.h" />
+    <ClInclude Include="Src\Rendering\API\Camera\CameraData.h" />
     <ClInclude Include="Src\Rendering\API\Geometry\Mesh.h" />
-    <ClInclude Include="Src\Rendering\API\Geometry\Model.h" />
+    <ClInclude Include="Src\Rendering\API\Geometry\ModelData.h" />
     <ClInclude Include="Src\Rendering\API\Geometry\TransformData.h" />
+    <ClInclude Include="Src\Rendering\API\Shader\Shader.h" />
+    <ClInclude Include="Src\Rendering\DX11\Model\ModelDX11.h" />
+    <ClInclude Include="Src\Rendering\DX11\Shaders\PixelShaderDX11.h" />
+    <ClInclude Include="Src\Rendering\DX11\Shaders\ShaderDX11.h" />
+    <ClInclude Include="Src\Rendering\DX11\Shaders\ShadersDX11.h" />
+    <ClInclude Include="Src\Rendering\DX11\Shaders\VertexShaderDX11.h" />
     <ClInclude Include="Src\ResourceManager\ResourceManager.h" />
     <ClInclude Include="Src\Scene.h" />
     <ClInclude Include="Src\Scuff3dImGui\Extensions.h" />
     <ClInclude Include="Src\Scuff3dImGui\Widgets\GlmWidgets.h" />
     <ClInclude Include="Src\Scuff3dImGui\Widgets\RenderingAPIWidgets.h" />
     <ClInclude Include="Src\Scuff3dImGui\Window\Scuff3dImGuiWindow.h" />
+    <ClInclude Include="Src\Utils\Container\Tree.hpp" />
     <ClInclude Include="Src\Utils\DataExtensions.h" />
     <ClInclude Include="Src\Utils\Development\ConsoleOutput.h" />
     <ClInclude Include="Src\pch.h" />
@@ -116,7 +127,10 @@
     <ClInclude Include="Src\Settings\Settings.h" />
     <ClInclude Include="Src\Utils\Console.h" />
     <ClInclude Include="Src\Utils\Conversions.hpp" />
+    <ClInclude Include="Src\Utils\Development\Misc.h" />
     <ClInclude Include="Src\Utils\FileIO.h" />
+    <ClInclude Include="Src\Utils\Helpers.h" />
+    <ClInclude Include="Src\Window\Scuff3dWindow32.h" />
     <ClInclude Include="Src\Window\Window32.h" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
@@ -131,26 +145,26 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
     <ConfigurationType>StaticLibrary</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
-    <PlatformToolset>v142</PlatformToolset>
+    <PlatformToolset>v143</PlatformToolset>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
     <ConfigurationType>StaticLibrary</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
-    <PlatformToolset>v142</PlatformToolset>
+    <PlatformToolset>v143</PlatformToolset>
     <WholeProgramOptimization>true</WholeProgramOptimization>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
     <ConfigurationType>StaticLibrary</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
-    <PlatformToolset>v142</PlatformToolset>
+    <PlatformToolset>v143</PlatformToolset>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
     <ConfigurationType>StaticLibrary</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
-    <PlatformToolset>v142</PlatformToolset>
+    <PlatformToolset>v143</PlatformToolset>
     <WholeProgramOptimization>true</WholeProgramOptimization>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
@@ -222,7 +236,7 @@
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>_DEBUG;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>_DEBUG;_LIB;_EDITOR;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <PrecompiledHeader>Use</PrecompiledHeader>
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
@@ -246,8 +260,9 @@
       <ConformanceMode>true</ConformanceMode>
       <PrecompiledHeader>Use</PrecompiledHeader>
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
-      <AdditionalIncludeDirectories>Libraries</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>Libraries;Src</AdditionalIncludeDirectories>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
+      <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
     <Link>
       <SubSystem>

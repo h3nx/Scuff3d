@@ -2,6 +2,8 @@
 #include "Application.h"
 #include "Utils/Development/ConsoleOutput.h"
 #include <windowsx.h>
+#include "Rendering/API/Camera/CameraData.h"
+#include "imgui/imgui_internal.h"
 
 extern LRESULT ImGui_ImplWin32_WndProcHandler(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
 //IMGUI_IMPL_API LRESULT  ImGui_ImplWin32_WndProcHandler(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
@@ -13,27 +15,40 @@ namespace scuff3d
 		m_running(true),
 		m_handle(NULL),
 		m_fixedTickTime(1.0f / 60.0f),
-		m_basicSettings(new Settings("Settings/basic.txt")),
-		m_input(new Input()),
-		m_timeAcc(0.0f), m_dt(0.0f), m_fixedFrame(false),
-		m_toggleDebugWindow(new Scuff3dImGuiWindow("Debug Toggling", ImVec2(0, 0))),
-		m_rendererDebugWindow(new Scuff3dImGuiWindow("Renderer", ImVec2(150, 0))),
-		m_windowDebugWindow(new Scuff3dImGuiWindow("Window", ImVec2(250, 0))),
-		m_settingsDebugWindow(new Scuff3dImGuiWindow("Settings", ImVec2(350, 0))),
-		m_scenesDebugWindow(new Scuff3dImGuiWindow("Scenes", ImVec2(450, 0)))
+		m_basicSettings(NEW Settings("Settings/basic.txt")),
+		m_resourceManager(NEW ResourceManager()),
+		m_performanceTracker(NEW PerformanceTracker()),
+		m_timeAcc(0.0f), m_dt(0.0f), m_fixedFrame(false)
 	{
 		QueryPerformanceFrequency(&m_frequency);
 		QueryPerformanceCounter(&m_start);
 		QueryPerformanceCounter(&m_end);
 
-		m_rendererDebugWindow->setActive(false);
-		m_windowDebugWindow->setActive(false);
-		m_settingsDebugWindow->setActive(false);
-		m_scenesDebugWindow->setActive(false);
+
+#ifdef _EDITOR
+		m_debugWindows["Hub"] = NEW Scuff3dImGuiWindow("Debug Hub", [&]() { renderImGuiDebug_toggle(); }, ImVec2(0, 0));
+		m_debugWindows["Testing"] = NEW Scuff3dImGuiWindow("Testing", [&]() { renderImGuiDebug_testing(); }, ImVec2(200, 200));
+		m_debugWindows["Renderer"] = NEW Scuff3dImGuiWindow("Renderer", [&]() { m_renderer->renderImGuiDebug(); }, ImVec2(0, 0));
+		m_debugWindows["Settings"] = NEW Scuff3dImGuiWindow("Settings", [&]() { renderImGuiDebug_settings(); }, ImVec2(0, 0));
+		m_debugWindows["Scenes"] = NEW Scuff3dImGuiWindow("Scenes", [&]() { renderImGuiDebug_scenes(); }, ImVec2(0, 0));
+		m_debugWindows["Resource Manager"] = NEW Scuff3dImGuiWindow("Resource Manager", [&]() { renderImGuiDebug_resourceManager(); }, ImVec2(0, 0));
+		m_debugWindows["Application Window"] = NEW Scuff3dImGuiWindow("Application Window", [&]() { m_window->renderImGui(); }, ImVec2(0, 0));
+		m_debugWindows["Performance Tracker"] = NEW Scuff3dImGuiWindow("Performance Tracker", [&]() { m_performanceTracker->renderImGui(); }, ImVec2(800, 0));
+#ifdef _EDITOR
+		//m_debugWindows["Editor Window"] = NEW Scuff3dImGuiWindow("Editor Window", [&]() { m_editorWindow->renderImGui(); }, ImVec2(0, 0));
+
+#endif
+		
+		int i = 0;
+		for (auto& pair : m_debugWindows) {
+			pair.second->setActive(false);
+			pair.second->setPosition((i++) * 100.0f, 0.0f);
+		}
+		m_debugWindows["Hub"]->setActive(true);
+		m_debugWindows["Testing"]->setActive(true);
 
 
-
-
+#endif
 	}
 	Application::Application(HWND hwnd) : Application::Application()
 	{
@@ -43,7 +58,17 @@ namespace scuff3d
 
 	Application::~Application() {
 
-
+		for (auto& pair : m_debugWindows) {
+			if (pair.second)
+				delete pair.second;
+			pair.second = nullptr;
+		}
+		for (auto& scene : m_sceneStack) {
+			if (scene)
+				delete scene;
+			scene = nullptr;
+		}
+		delete m_window;
 	}
 
 	void Application::exit()
@@ -59,25 +84,46 @@ namespace scuff3d
 		m_handle = hwnd;
 		return true;
 	}
-	bool Application::setWindow(Window32* window)
-	{
+	bool Application::setWindow(Scuff3dWindow32* window) {
 		m_handle = window->getHandle();
-		m_input->setHwnd(m_handle); 
-		m_window.reset(window);
+		m_window = window;
+		//m_window = std::make_unique<Window32>(window);
+		//const glm::vec2 size = { 500,500 };
 
+		//m_editorWindow = std::make_unique<Window32>(NEW Window32(window->getHInstance(), editorWndProc, "Editor: " + window->getTitle(), size, { 0,0 }));
 
 
 		return false;
 	}
 
+	Scuff3dWindow32* Application::createWindow(HINSTANCE hInstance, WNDPROC wndProc, const std::string& name, const glm::vec2& size, const glm::vec2& pos, const bool maximised) {
+		m_window = NEW Scuff3dWindow32(hInstance, wndProc, name, size, pos, maximised);
+		setWindow(m_window->getHandle());
+		return m_window;
+	}
+	Scuff3dWindow32* Application::createWindow(HINSTANCE hInstance, WNDPROC wndProc, const std::string& name) {
+		m_window = NEW Scuff3dWindow32(hInstance, wndProc, name, 0);
+		setWindow(m_window->getHandle());
+		return m_window;
+	}
 	bool Application::initRenderer(RenderingAPI api)
 	{
 		switch (api) {
 		case RenderingAPI::DX11:
-			m_renderer.reset(new RendererDX11(m_handle));
+			m_renderer.reset(NEW RendererDX11(m_window->getHandle(), m_window->getClientSize()));
+			m_renderer->setViewPort("standard", { 0,0 }, m_window->getClientSize());
+//#ifdef _EDITOR
+//			m_renderer->addRenderTarget("editor", m_editorWindow->getHandle(), m_editorWindow->getClientSize());
+//			m_renderer->setViewPort("editor", { 0,0 }, m_editorWindow->getClientSize());
+//			m_editorWindow->onResize("resizeEditorViewport", [&](const glm::vec2& size) { 
+//				m_renderer->resize(m_editorWindow->getHandle(), size); 
+//				m_renderer->resizeViewport("editor", size); 
+//				m_editorCamera->getComponent<Camera>()->setAspectratio(size);
+//			});
+//#endif
 			return true;
 		case RenderingAPI::DX12:
-			m_renderer.reset(new RendererDX12(m_handle));
+			m_renderer.reset(NEW RendererDX12(m_handle, m_window->getClientSize()));
 			return true;
 		default:
 			return false;
@@ -86,48 +132,82 @@ namespace scuff3d
 		return false;
 	}
 
+	Input* Application::getInput() {
+		return m_window;
+	}
+
 	void Application::Frame(std::function<void()> imguiFunc) {
+		if (!m_running) return;
+		m_performanceTracker->begin("Application");
 		processSceneChanges();
 		beginFrame();
-
+		m_performanceTracker->begin("__Update__");
 		preUpdate(m_dt);
 		update(m_dt);
 		postUpdate(m_dt);
+		m_performanceTracker->end("__Update__");
 
+//#ifdef _EDITOR
+//		updateEditor(m_dt);
+//#endif
+
+
+		m_performanceTracker->begin("__Fixed Update__");
 		if (m_fixedFrame) {
 			preFixedUpdate(m_fixedTickTime);
 			fixedUpdate(m_fixedTickTime);
 			postFixedUpdate(m_fixedTickTime);
-		}
 
-		if (m_renderer != nullptr) {
-			preRender();
-			render(imguiFunc);
-			present();
 		}
+		m_performanceTracker->end("__Fixed Update__", m_fixedFrame);
+//#ifdef _EDITOR
+//		if (m_fixedFrame) {
+//			updateEditorFixed(m_fixedTickTime);
+//		}
+//#endif
 
+
+		m_performanceTracker->begin("__Render__");
+		if (m_renderer != nullptr && m_window->getHandle() != 0) {
+			
+			if (preRender()) {
+				render(imguiFunc);
+				present();
+
+			}
+		}
+		m_performanceTracker->end("__Render__", m_renderer != nullptr);
+//#ifdef _EDITOR
+//		if (m_renderer != nullptr) {
+//			renderEditor();
+//		}
+//#endif
 		endFrame();
+		m_performanceTracker->end("Application");
 
 
 	}
 
 	//returns dt
 	void Application::beginFrame() {
-		m_input->beginFrame();
+		m_window->beginFrame();
+//#ifdef _EDITOR
+//		m_editorWindow->beginFrame();
+//#endif
 		m_fixedFrame = false;
-		QueryPerformanceCounter(&m_start);
-		m_dt = (float)((m_start.QuadPart - m_end.QuadPart) * 1.0 / m_frequency.QuadPart);
+		m_performanceTracker->beginFrame();
+		m_dt = m_performanceTracker->getDT();
 		m_timeAcc += m_dt;
+		if (m_dt > 0.01f)
+			DEVLOG("FUCKED DT("+std::to_string(m_dt)+")");
 		if (m_timeAcc >= m_fixedTickTime) {
 			m_timeAcc -= m_fixedTickTime;
 			m_fixedFrame = true;
 		}
-		m_end = m_start;
-
-		//DEVLOG("ApplicationBegin");
 	}
 
 	void Application::preUpdate(const float dt) {
+		m_performanceTracker->begin("Pre Update");
 		for (auto it = m_sceneStack.rbegin(); it != m_sceneStack.rend(); ++it) {
 			if (!(*it)->isActive())
 				continue;
@@ -135,8 +215,10 @@ namespace scuff3d
 			if (m_processOnlyTopScene)
 				break;
 		}
+		m_performanceTracker->end("Pre Update");
 	}
 	void Application::update(const float dt) {
+		m_performanceTracker->begin("Update");
 		for (auto it = m_sceneStack.rbegin(); it != m_sceneStack.rend(); ++it) {
 			if (!(*it)->isActive())
 				continue;
@@ -144,8 +226,10 @@ namespace scuff3d
 			if (m_processOnlyTopScene)
 				break;
 		}
+		m_performanceTracker->end("Update");
 	}
 	void Application::postUpdate(const float dt) {
+		m_performanceTracker->begin("Post Update");
 		for (auto it = m_sceneStack.rbegin(); it != m_sceneStack.rend(); ++it) {
 			if (!(*it)->isActive())
 				continue;
@@ -153,9 +237,11 @@ namespace scuff3d
 			if (m_processOnlyTopScene)
 				break;
 		}
+		m_performanceTracker->end("Post Update");
 	}
 
 	void Application::preFixedUpdate(const float dt) {
+		m_performanceTracker->begin("Pre Fixed Update");
 		for (auto it = m_sceneStack.rbegin(); it != m_sceneStack.rend(); ++it) {
 			if (!(*it)->isActive())
 				continue;
@@ -163,8 +249,10 @@ namespace scuff3d
 			if (m_processOnlyTopScene)
 				break;
 		}
+		m_performanceTracker->end("Pre Fixed Update");
 	}
 	void Application::fixedUpdate(const float dt) {
+		m_performanceTracker->begin("Fixed Update");
 		for (auto it = m_sceneStack.rbegin(); it != m_sceneStack.rend(); ++it) {
 			if (!(*it)->isActive())
 				continue;
@@ -172,8 +260,13 @@ namespace scuff3d
 			if (m_processOnlyTopScene)
 				break;
 		}
+		m_performanceTracker->end("Fixed Update");
+//#ifdef _EDITOR
+//		updateEditorFixed(dt);
+//#endif
 	}
 	void Application::postFixedUpdate(const float dt) {
+		m_performanceTracker->begin("Post Fixed Update");
 		for (auto it = m_sceneStack.rbegin(); it != m_sceneStack.rend(); ++it) {
 			if (!(*it)->isActive())
 				continue;
@@ -181,10 +274,15 @@ namespace scuff3d
 			if (m_processOnlyTopScene)
 				break;
 		}
+		m_performanceTracker->end("Post Fixed Update");
 	}
 
-	void Application::preRender() {
-		m_renderer->beginFrame();
+	bool Application::preRender() {
+		m_performanceTracker->begin("Pre render");
+		bool status = m_renderer->beginFrame(m_window->getHandle(),"standard");
+		if (status == false)
+			return status;
+		m_renderer->beginImGui();
 
 		for (auto it = m_sceneStack.rbegin(); it != m_sceneStack.rend(); ++it) {
 			if (!(*it)->isActive())
@@ -193,17 +291,20 @@ namespace scuff3d
 			if (m_processOnlyTopScene)
 				break;
 		}
+		m_performanceTracker->end("Pre render");
+		return status;
 	}
 	void Application::render(std::function<void()> imguiFunc) {
+		m_performanceTracker->begin("Render");
+
+		m_performanceTracker->begin("Imgui Render");
 		m_renderer->renderImGui([&]() {
 			imguiFunc;
-			m_toggleDebugWindow->render([&]() {renderImGuiDebug_toggle(); });
-			m_rendererDebugWindow->render([&]() {});
-			m_windowDebugWindow->render([&]() {});
-			m_settingsDebugWindow->render([&]() {});
-			m_scenesDebugWindow->render([&]() { renderImGuiDebug_scenes(); });
-
-			});
+			for (auto& pair : m_debugWindows) {
+				pair.second->render();
+			}
+		});
+		m_performanceTracker->end("Imgui Render");
 
 		for (auto it = m_sceneStack.rbegin(); it != m_sceneStack.rend(); ++it) {
 			if (!(*it)->isActive())
@@ -212,9 +313,11 @@ namespace scuff3d
 			if (m_processOnlyTopScene)
 				break;
 		}
+		m_performanceTracker->end("Render");
 	}
 	void Application::present() {
-
+		m_performanceTracker->begin("Present");
+		m_renderer->presentImGui();
 		for (auto it = m_sceneStack.rbegin(); it != m_sceneStack.rend(); ++it) {
 			if (!(*it)->isActive())
 				continue;
@@ -223,10 +326,17 @@ namespace scuff3d
 				break;
 		}
 
-		m_renderer->present();
+		m_renderer->present(m_window->getHandle());
+		m_performanceTracker->end("Present");
 	}
 
 	void Application::endFrame() {
+		m_window->endFrame();
+
+//#ifdef _EDITOR
+//		m_editorWindow->endFrame();
+//#endif
+		m_performanceTracker->endFrame();
 	}
 
 	void Application::loadScene(Scene* scene) {
@@ -256,24 +366,54 @@ namespace scuff3d
 		m_processOnlyTopScene = false;
 	}
 
+	
+	void Application::resizedWindow(HWND hWnd) {
+		m_renderer->resizeRenderTarget(m_window->getClientSize());
+		glm::vec2 size = m_window->getClientSize();
+		m_renderer->resizeViewport("standard", size);
+		DEVLOG("clientSize(" + std::to_string(size.x) + "," + std::to_string(size.y) + ")");
+		
+	}
+
+	void Application::resizedWindow(const int x, const int y) {
+		//DEVLOG("Window Resized(" + std::to_string(x) + "," + std::to_string(y) + ")");
+		//m_renderer->resize({x, y});
+	}
+
 	void Application::renderImGuiDebug_toggle() {
+		static bool imguiDemo = false;
 
+		if (imguiDemo) {
+			ImGui::ShowDemoWindow(&imguiDemo);
+		}
+
+		if (ImGui::Checkbox("ImGui Demo", &imguiDemo)) {
+		}
 		bool status = false;
-		std::vector<scuff3d::Scuff3dImGuiWindow*> windows = {
-			m_rendererDebugWindow.get(),
-			m_windowDebugWindow.get(),
-			m_settingsDebugWindow.get(),
-			m_scenesDebugWindow.get(),
-		};
-
-		for (auto window : windows) {
+		for (auto& pair : m_debugWindows) {
+			auto* window = pair.second;
 			status = window->isActive();
 			if (ImGui::Checkbox(window->getTitle().c_str(), &status)) {
 				window->setActive(status);
 			}
 		}
+		if (ImGui::Button("Exit")) {
+			exit();
+		}
 	}
+	void Application::renderImGuiDebug_testing() {
+		ImGui::Text("Acc: " + std::to_string(m_timeAcc));
+		ImGui::Text("DT: " + std::to_string(m_dt));
+		ImGui::Text("FPS: " + std::to_string(1.0f/m_dt));
 
+
+
+	}
+	void Application::renderImGuiDebug_renderer() {
+	}
+	
+	void Application::renderImGuiDebug_settings() {
+	}
 	void Application::renderImGuiDebug_scenes() {
 		ImGui::BeginGroupPanel("SceneStack");
 
@@ -316,8 +456,8 @@ namespace scuff3d
 				ImGui::BeginGroupPanel("Objects");
 				int index = 0;
 				for (auto& obj : scene->m_gameObjects) {
-					int id = obj.second;
-					if (ImGui::Selectable(obj.first.c_str(), id == selectedObjectID, 0, ImVec2(120,0))) {
+					size_t id = obj.first;
+					if (ImGui::Selectable(obj.second->getName().c_str(), id == selectedObjectID, 0, ImVec2(120,0))) {
 						if (selectedObjectID == id) {
 							selectedObjectID = -1;
 						}
@@ -335,10 +475,24 @@ namespace scuff3d
 			ImGui::EndGroupPanel();
 
 			if (selectedObjectID > -1) {
-				ImGui::BeginGroupPanel("Object Info", ImVec2(-1, 40));
+				const int line = 50;
+				GameObject* obj = scene->m_gameObjects[selectedObjectID];
+				ImGui::BeginGroupPanel(obj->getName() + " info", ImVec2(-1, 0));
 				ImGui::Text("ID");
-				ImGui::SameLine();
-				ImGui::InputInt("##OBJECTID", &selectedObjectID, 0, 0, ImGuiInputTextFlags_ReadOnly);
+				ImGui::SameLine(line);
+				ImGui::Text(std::to_string(selectedObjectID));
+				//ImGui::InputInt("##OBJECTID", &selectedObjectID, 0, 0, ImGuiInputTextFlags_ReadOnly);
+
+				ImGui::Text("Name");
+				ImGui::SameLine(line);
+				ImGui::Text(obj->getName());
+
+
+				obj->renderImGui();
+
+
+
+
 				ImGui::EndGroupPanel();
 
 			}
@@ -357,6 +511,141 @@ namespace scuff3d
 			ImGui::EndGroupPanel();
 		}
 	}
+	void Application::renderImGuiDebug_resourceManager() {
+
+		const ImGuiTabBarFlags tabBarFlags = 0;
+		if(ImGui::BeginTabBar("ResourceManagerThings", tabBarFlags)) {
+			if (ImGui::BeginTabItem("Meshes")) {
+				ImGui::BeginGroupPanel("Meshes");
+				static Mesh* selectedMesh = nullptr;
+				for (auto& pair : m_resourceManager->getAllMeshes()) {
+					Mesh* mesh = pair.second;
+					if (ImGui::Selectable(pair.first.c_str(), mesh == selectedMesh, 0, ImVec2(100, 0))) {
+						if (mesh == selectedMesh) {
+							selectedMesh = nullptr;
+						}
+						else {
+							selectedMesh = mesh;
+						}
+					}
+
+				}
+				ImGui::EndGroupPanel();
+				ImGui::SameLine();
+				ImGui::BeginGroupPanel(selectedMesh? selectedMesh->getName().c_str():"Mesh", ImVec2(200,0)); {
+					if (selectedMesh) {
+						ImGui::Text("Vertices");
+						ImGui::SameLine();
+						ImGui::rText(std::to_string(selectedMesh->getCount()).c_str());
+						ImGui::Text("Indices");
+						ImGui::SameLine();
+						ImGui::rText(std::to_string(selectedMesh->getIndicesCount()).c_str());
+						ImGui::Text("Vertex ByteSize");
+						ImGui::SameLine();
+						ImGui::rText(std::to_string(selectedMesh->vertexByteSize()).c_str());
+						ImGui::Separator();
+						ImGui::BeginGroupPanel("Layout"); {
+							if (selectedMesh->getPositions()) {
+								ImGui::Text("Position");
+							}
+							if (selectedMesh->getNormals()) {
+								ImGui::Text("Normal");
+							}
+							if (selectedMesh->getTangents()) {
+								ImGui::Text("Tangent");
+							}
+							if (selectedMesh->getBitangents()) {
+								ImGui::Text("BiTangent");
+							}
+							if (selectedMesh->getUvs()) {
+								ImGui::Text("UV");
+							}
+							if (selectedMesh->getColors()) {
+								ImGui::Text("Color");
+							}
+						}
+						ImGui::EndGroupPanel();
+
+
+					}
+					else {
+						ImGui::Text("No mesh selected");
+					}
+
+
+				}
+				ImGui::EndGroupPanel();
+
+				
+
+
+
+				ImGui::EndTabItem();
+			}
+			if (ImGui::BeginTabItem("Sounds")) {
+				ImGui::BeginGroupPanel("Sounds");
+				static std::string selectedIndex = "";
+				for (auto& pair : m_resourceManager->getAllMeshes()) {
+					Mesh* mesh = pair.second;
+					if (ImGui::Selectable(pair.first.c_str(), selectedIndex == pair.first, 0, ImVec2(100, 0))) {
+						if (selectedIndex == pair.first) {
+							selectedIndex = "";
+						}
+						else {
+							selectedIndex = pair.first;
+						}
+					}
+
+				}
+
+				ImGui::EndGroupPanel();
+				ImGui::BeginGroupPanel("Sound", ImVec2(200, 0));
+
+
+
+				ImGui::EndGroupPanel();
+				
+				ImGui::EndTabItem();
+			}
+
+		}
+		ImGui::EndTabBar();
+
+
+		
+	}
+	void Application::renderImGuiDebug_input()
+	{
+	}
+	void Application::renderImGuiDebug_perf() { 
+		
+	}
+
+//#ifdef _EDITOR
+//	void Application::updateEditor(const float dt) {
+//		m_editorCamera->getComponent<CameraController>()->update(dt);
+//	}
+//
+//	void Application::updateEditorFixed(const float dt) { 
+//
+//	}
+//
+//	void Application::renderEditor() {
+//		m_renderer->beginFrame(m_editorWindow->getHandle(),"editor", m_editorCamera->getComponent<Camera>());
+//
+//		for (auto it = m_sceneStack.rbegin(); it != m_sceneStack.rend(); ++it) {
+//			if (!(*it)->isActive())
+//				continue;
+//			(*it)->render();
+//			if (m_processOnlyTopScene)
+//				break;
+//		}
+//
+//
+//
+//		m_renderer->present(m_editorWindow->getHandle());
+//	}
+//#endif
 
 	void Application::processSceneChanges() {
 
@@ -372,6 +661,8 @@ namespace scuff3d
 				DEVLOG("Adding scene (" + item.second->getName() + ")");
 				m_sceneStack.push_back(item.second);
 				item.second->m_app = this;
+				item.second->init();
+				item.second->setActive(true);
 				break;
 			case SceneChanges::POP:
 				DEVLOG("Popping scene (" + m_sceneStack.back()->getName() + ")");
@@ -412,10 +703,14 @@ namespace scuff3d
 		
 	}
 
+	/*bool Application::editorWndProc(HWND hWnd, UINT message, WPARAM, LPARAM lParam) {
 
+	}*/
 
 	bool Application::wndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) {
+		
 		ImGui_ImplWin32_WndProcHandler(hWnd, message, wParam, lParam);
+		m_window->wndProc(hWnd, message, wParam, lParam);
 
 		switch (message) {
 
@@ -425,74 +720,7 @@ namespace scuff3d
 		case WM_SYSCOMMAND:
 			if (wParam == SC_KEYMENU && (lParam >> 16) <= 0) return 0;
 			break;
-		case WM_KEYDOWN:
-			// Only process first keystroke, skip repeats
-			if ((HIWORD(lParam) & KF_REPEAT) == 0) {
-				m_input->setkeyDown((const int)wParam);
-				DEVLOG("keydown(" + std::to_string((const int)wParam) + ")");
-			}
-			break;
-		case WM_KEYUP: 
-			m_input->setkeyUp((const int)wParam);
-			DEVLOG("keyup(" + std::to_string((const int)wParam) + ")");
-			break;
-		case WM_SYSKEYDOWN:
-			if ((HIWORD(lParam) & KF_REPEAT) == 0) {
-				m_input->setkeyDown((const int)wParam);
-				DEVLOG("syskeydown(" + std::to_string((const int)wParam) + ")");
-			}
-			break;
-		case WM_SYSKEYUP:
-			m_input->setkeyUp((const int)wParam);
-			DEVLOG("syskeyup(" + std::to_string((const int)wParam) + ")");
-			break;
-
-		 case WM_MBUTTONDOWN:
-			 m_input->setkeyDown(VK_MBUTTON);
-			 DEVLOG("mbuttonDown(" + std::to_string(VK_MBUTTON) + ")");
-			 break;
-		 case WM_RBUTTONDOWN:
-			 m_input->setkeyDown(VK_RBUTTON);
-			 DEVLOG("mbuttonDown(" + std::to_string(VK_RBUTTON) + ")");
-			 break;
-		 case WM_LBUTTONDOWN:
-			 m_input->setkeyDown(VK_LBUTTON);
-			 DEVLOG("mbuttonDown(" + std::to_string(VK_LBUTTON) + ")");
-			 break;
-		 case WM_XBUTTONDOWN:
-			 m_input->setkeyDown(GET_XBUTTON_WPARAM(wParam) == 1 ? VK_XBUTTON1 : VK_XBUTTON2);
-			 DEVLOG("mbuttonDown(" + std::to_string(GET_XBUTTON_WPARAM(wParam)==1? VK_XBUTTON1 : VK_XBUTTON2) + ")");
-			 break;
-
-
-		 case WM_MBUTTONUP:
-			 m_input->setkeyUp(VK_MBUTTON);
-			 DEVLOG("mbuttonUp(" + std::to_string(VK_MBUTTON) + ")");
-			 break;
-		 case WM_RBUTTONUP:
-			 m_input->setkeyUp(VK_RBUTTON);
-			 DEVLOG("mbuttonUp(" + std::to_string(VK_RBUTTON) + ")");
-			 break;
-		 case WM_LBUTTONUP:
-			 m_input->setkeyUp(VK_LBUTTON);
-			 DEVLOG("mbuttonUp(" + std::to_string(VK_LBUTTON) + ")");
-			 break;
-		 case WM_XBUTTONUP:
-			 m_input->setkeyUp(GET_XBUTTON_WPARAM(wParam) == 1 ? VK_XBUTTON1 : VK_XBUTTON2);
-			 DEVLOG("mbuttonUp(" + std::to_string(GET_XBUTTON_WPARAM(wParam) == 1 ? VK_XBUTTON1 : VK_XBUTTON2) + ")");
-			 break;
-
-
-
-		 case WM_MOUSEMOVE:
-			 //DEVLOG(, );
-			 //m_input->updateMousePos((float)GET_X_LPARAM(lParam), (float)GET_Y_LPARAM(lParam));
-			 break;
-
-
-
 		}
-
 
 		return 1;
 	}

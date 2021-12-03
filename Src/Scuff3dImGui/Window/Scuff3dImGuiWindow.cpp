@@ -14,6 +14,12 @@ namespace scuff3d
 		m_posDirty = true;
 	}
 
+	Scuff3dImGuiWindow::Scuff3dImGuiWindow(const std::string& title, const std::function<void()> externalFunction, const ImVec2& pos, const ImVec2& size, const bool lockPosition, const bool lockSize) :
+		Scuff3dImGuiWindow(title,pos,size,lockPosition,lockSize)
+	{
+		m_externalFunction = externalFunction;
+	}
+
 	Scuff3dImGuiWindow::Scuff3dImGuiWindow(const std::string& title, const bool lockPosition, const bool lockSize, const ImVec2& pos, const ImVec2& size) :
 	Scuff3dImGuiWindow(title, pos,size,lockPosition,lockSize)
 	{}
@@ -22,7 +28,11 @@ namespace scuff3d
 
 	}
 
-	void Scuff3dImGuiWindow::render(std::function<void()> content) {
+	void Scuff3dImGuiWindow::render(const float& dt) {
+		render(m_externalFunction, dt);
+	}
+
+	void Scuff3dImGuiWindow::render(std::function<void()> content, const float& dt) {
 		if (!m_active)
 			return;
 		if (m_posDirty) {
@@ -39,7 +49,8 @@ namespace scuff3d
 		if (ImGui::Begin(m_title.c_str(), &m_active, flags)){
 			if (!m_lockPosition) { m_position = ImGui::GetWindowPos(); }
 			if (!m_lockSize) { m_size = ImGui::GetWindowSize(); }
-			content();
+			if(content)
+				content();
 		}
 		ImGui::End();
 	}
@@ -53,6 +64,9 @@ namespace scuff3d
 	void Scuff3dImGuiWindow::setPosition(const ImVec2& pos) {
 		m_position = pos;
 		m_posDirty = true;
+	}
+	void Scuff3dImGuiWindow::setPosition(const float& x, const float& y) {
+		setPosition(ImVec2(x, y));
 	}
 	void Scuff3dImGuiWindow::setSize(const ImVec2& size) {
 		m_size = size;
@@ -83,9 +97,16 @@ namespace scuff3d
 		setActive(false);
 	}
 
-	const glm::vec2 Scuff3dImGuiWindow::getPosition()
-	{
-		return glm::vec2(m_position.x,m_position.y);
+	const glm::vec2 Scuff3dImGuiWindow::getPosition() {
+		return ImVec2ToGlmVec2(m_position);
+		//return glm::vec2(m_position.x,m_position.y);
+	}
+
+	const glm::vec2 Scuff3dImGuiWindow::getSize(const bool originalSize) {
+		return originalSize ? 
+			ImVec2ToGlmVec2(m_originalSize) :
+			ImVec2ToGlmVec2(m_size)
+		;
 	}
 
 	const std::string& Scuff3dImGuiWindow::getTitle() const

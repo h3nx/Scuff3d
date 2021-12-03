@@ -9,56 +9,33 @@
 namespace scuff3d
 {
 
-	//9
-
-
-	// Structs for storing transform data from two consecutive updates
-	// so that they can be interpolated between.
-	// Should be optimized more in the future.
-	struct TransformSnapshot {
-		glm::vec3 m_translation;
-		glm::vec3 m_rotation;
-		glm::quat m_rotationQuat;
-		glm::vec3 m_scale;
-		glm::vec3 m_forward;
-		glm::vec3 m_right;
-		glm::vec3 m_up;
-
-	};
-
-	struct TransformFrame {
-		TransformSnapshot m_current;
-		TransformSnapshot m_previous;
-
-		bool m_updatedDirections;
-	};
-
 	class TransformData {
+	protected:
+		struct FrameData {
+			glm::vec3 m_translation;
+			glm::vec3 m_rotation;
+			glm::quat m_rotationQuat;
+			glm::vec3 m_scale;
+			glm::vec3 m_forward;
+			glm::vec3 m_right;
+			glm::vec3 m_up;
 
+		};
 	public:
 		explicit TransformData(TransformData* parent);
-		TransformData(const glm::vec3& translation, TransformData* parent = nullptr);
+		TransformData(const glm::vec3& translation, TransformData* parent);
 		TransformData(const glm::vec3& translation = { 0.0f, 0.0f, 0.0f },
 			const glm::vec3& rotation = { 0.0f, 0.0f, 0.0f },
 			const glm::vec3& scale = { 1.0f, 1.0f, 1.0f },
 			TransformData* parent = nullptr);
 		virtual ~TransformData();
 
-		void setParent(TransformData* parent);
-		void removeParent();
 
-		void prepareFixedUpdate();
-		void prepareUpdate();
-		TransformSnapshot getCurrentTransformState() const;
-		TransformSnapshot getPreviousTransformState() const;
+		// 
+		//		SETTERS
+		//
 
-		TransformFrame getTransformFrame() const;
-
-		void setStartTranslation(const glm::vec3& translation);
-
-		void setCenter(const glm::vec3& center);
-
-		void translate(const glm::vec3& move);
+		void translate(const glm::vec3& translation);
 		void translate(const float x, const float y, const float z);
 
 		void scale(const float factor);
@@ -83,10 +60,12 @@ namespace scuff3d
 		void setScale(const float x, const float y, const float z);
 		void setScale(const glm::vec3& scale);
 
-		/* Forward should always be a normalized vector */
+		// Forward should always be a normalized vector 
 		void setForward(const glm::vec3& forward);
 
-		TransformData* getParent() const;
+		// 
+		//		GETTERS
+		//
 
 		const glm::vec3& getTranslation() const;
 		const glm::vec3& getRotations() const;
@@ -97,8 +76,9 @@ namespace scuff3d
 		const glm::vec3& getUp();
 		const glm::vec3& getRight();
 
-		const glm::vec3 getInterpolatedTranslation(float alpha) const;
-		const glm::quat getInterpolatedRotation(float alpha) const;
+		//TODO: optimize with dirty
+		const glm::mat4& getMatrix();
+		const glm::mat4& getLocalMatrix();
 
 
 		// Matrix used by collision etc.
@@ -112,10 +92,26 @@ namespace scuff3d
 		glm::mat4 getRenderMatrix(float alpha = 1.0f);
 		const glm::mat4& getRenderMatrixLastFrame() const;
 
-	private:
-		TransformFrame m_data;
+		//Hierarchy Functions
 
-		glm::vec3 m_center;
+		void setParent(TransformData* parent);
+		void removeParent();
+
+		void addChild(TransformData* child);
+		void removeChild(TransformData* child);
+		void removeChildren();
+
+		virtual const TransformData* getParent() const;
+		const std::vector<TransformData*>& getChildren() const;
+		const TransformData* getChild(int index) const;
+
+		const bool isChild(TransformData* child) const;
+
+
+
+	protected:
+		FrameData m_current;
+		FrameData m_previous;
 
 		// Used for collision detection
 		// At most updated once per tick
@@ -133,14 +129,15 @@ namespace scuff3d
 		int m_hasChanged;     // If the data has been changed since the last update
 		bool m_matNeedsUpdate; // Will only be false if m_hasChanged == false and a matrix has been created
 
-		TransformData* m_parent = nullptr;
-
+		TransformData* m_parent;
 		std::vector<TransformData*> m_children;
-	private:
-		void updateLocalMatrix();
+		//TODO: add this
+		std::vector<int> m_childrenOrder;
+
+
+	protected:
 		void updateMatrix();
 
-		void updateLocalRenderMatrix(float alpha);
 		void updateRenderMatrix(float alpha);
 
 		void updateForward();
@@ -148,9 +145,8 @@ namespace scuff3d
 		void updateUp();
 
 		void treeNeedsUpdating();
-		void addChild(TransformData* transform);
-		void removeChild(TransformData* transform);
-		void removeChildren();
+
+
 		void clampRotation();
 		void clampRotation(float& axis);
 
