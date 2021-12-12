@@ -68,6 +68,7 @@
     <ClCompile Include="Src\Rendering\DX11\Shaders\PixelShaderDX11.cpp" />
     <ClCompile Include="Src\Rendering\DX11\Shaders\VertexShaderDX11.cpp" />
     <ClCompile Include="Src\Rendering\DX12\RendererDX12.cpp" />
+    <ClCompile Include="Src\ResourceManager\Importers\FbxImporter.cpp" />
     <ClCompile Include="Src\ResourceManager\ResourceManager.cpp" />
     <ClCompile Include="Src\Scene.cpp" />
     <ClCompile Include="Src\Scuff3dImGui\Extensions.cpp" />
@@ -110,6 +111,7 @@
     <ClInclude Include="Src\Rendering\DX11\Shaders\ShaderDX11.h" />
     <ClInclude Include="Src\Rendering\DX11\Shaders\ShadersDX11.h" />
     <ClInclude Include="Src\Rendering\DX11\Shaders\VertexShaderDX11.h" />
+    <ClInclude Include="Src\ResourceManager\Importers\FbxImporter.h" />
     <ClInclude Include="Src\ResourceManager\ResourceManager.h" />
     <ClInclude Include="Src\Scene.h" />
     <ClInclude Include="Src\Scuff3dImGui\Extensions.h" />
@@ -240,7 +242,7 @@
       <ConformanceMode>true</ConformanceMode>
       <PrecompiledHeader>Use</PrecompiledHeader>
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
-      <AdditionalIncludeDirectories>Libraries;Src;</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>Libraries;Src;Libraries\FBXSDK2020\include</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp17</LanguageStandard>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
     </ClCompile>
@@ -249,6 +251,12 @@
       </SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
     </Link>
+    <Lib>
+      <AdditionalDependencies>libfbxsdk.lib;%(AdditionalDependencies)</AdditionalDependencies>
+    </Lib>
+    <Lib>
+      <AdditionalLibraryDirectories>$(ProjectDir)Libraries\FBXSDK2020\lib\debug;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+    </Lib>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <ClCompile>

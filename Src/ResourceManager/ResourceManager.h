@@ -2,7 +2,7 @@
 #include <string>
 #include <map>
 #include <vector>
-
+#include "Utils/Helpers.h"
 
 
 namespace scuff3d {
@@ -18,13 +18,32 @@ namespace scuff3d {
 		ResourceManager();
 		~ResourceManager();
 
+		struct ModelFile {
+			std::string fileName;
+			Mesh* mesh = nullptr;
 
-		Mesh* getMesh(const std::string& name);
-		std::map<std::string, Mesh*> getAllMeshes();
+			Skeleton* skeleton = nullptr;
+			AnimationStack* stack = nullptr;
+			~ModelFile() { safeDelete(mesh); safeDelete(skeleton); safeDelete(stack); }
+		};
+
+		void addFile(const std::string& accessName, ModelFile* file);
+		void addFile(const std::string& accessName, const std::string& fileName, Mesh* mesh, Skeleton* skeleton = nullptr, AnimationStack* animStack = nullptr);
+
+
 
 		void addMesh(const std::string& accessName, Mesh* mesh);
-		void loadFBX(const std::string& filename);
-		void loadFBXAnimation(const std::string& filename, const std::string& stackName);
+		Mesh* getMesh(const std::string& name);
+		std::map<std::string, Mesh*> getAllMeshes();
+		std::map<std::string, ModelFile*>& getAllModelFiles();
+
+
+		void loadFBX(const std::string& accessName, const std::string& filename, bool checkCache = false);
+		void loadFBXMesh(const std:: string & filename);
+		void loadFBXSkeleton(const std::string& filename);
+		void loadFBXAnimation(const std::string& originalfilename, const std::string& filename);
+
+
 		void loadObj(const std::string& accessName, const std::string& filename);
 
 		void loadTexture(const std::string& filename);
@@ -34,11 +53,8 @@ namespace scuff3d {
 
 
 	private:
-
-		void addAnimationStack(AnimationStack* animationStack);
-		void addSound(Sound* sound);
-
-		std::map<std::string, Mesh*> m_meshes;
+		std::map<std::string, ModelFile*> m_files;
+		//std::map<std::string, Mesh*> m_meshes;
 
 		template<typename T>
 		std::string getNextAvailableName(const std::string& name, std::map<std::string, T> m);

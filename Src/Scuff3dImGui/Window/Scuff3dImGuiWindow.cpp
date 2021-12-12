@@ -98,14 +98,14 @@ namespace scuff3d
 	}
 
 	const glm::vec2 Scuff3dImGuiWindow::getPosition() {
-		return ImVec2ToGlmVec2(m_position);
+		return m_position;
 		//return glm::vec2(m_position.x,m_position.y);
 	}
 
 	const glm::vec2 Scuff3dImGuiWindow::getSize(const bool originalSize) {
 		return originalSize ? 
-			ImVec2ToGlmVec2(m_originalSize) :
-			ImVec2ToGlmVec2(m_size)
+			m_originalSize :
+			m_size
 		;
 	}
 

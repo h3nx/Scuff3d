@@ -4,7 +4,7 @@
 #include <windowsx.h>
 #include "Rendering/API/Camera/CameraData.h"
 #include "imgui/imgui_internal.h"
-
+#include <chrono>
 extern LRESULT ImGui_ImplWin32_WndProcHandler(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
 //IMGUI_IMPL_API LRESULT  ImGui_ImplWin32_WndProcHandler(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
 
@@ -18,37 +18,17 @@ namespace scuff3d
 		m_basicSettings(NEW Settings("Settings/basic.txt")),
 		m_resourceManager(NEW ResourceManager()),
 		m_performanceTracker(NEW PerformanceTracker()),
-		m_timeAcc(0.0f), m_dt(0.0f), m_fixedFrame(false)
+		m_timeAcc(0.0f), m_dt(0.0f), m_fixedFrame(false), 
+		m_runResizeMoveUpdateThread(false),
+		m_editorCamera(nullptr),
+		m_window(nullptr)
 	{
 		QueryPerformanceFrequency(&m_frequency);
 		QueryPerformanceCounter(&m_start);
 		QueryPerformanceCounter(&m_end);
 
 
-#ifdef _EDITOR
-		m_debugWindows["Hub"] = NEW Scuff3dImGuiWindow("Debug Hub", [&]() { renderImGuiDebug_toggle(); }, ImVec2(0, 0));
-		m_debugWindows["Testing"] = NEW Scuff3dImGuiWindow("Testing", [&]() { renderImGuiDebug_testing(); }, ImVec2(200, 200));
-		m_debugWindows["Renderer"] = NEW Scuff3dImGuiWindow("Renderer", [&]() { m_renderer->renderImGuiDebug(); }, ImVec2(0, 0));
-		m_debugWindows["Settings"] = NEW Scuff3dImGuiWindow("Settings", [&]() { renderImGuiDebug_settings(); }, ImVec2(0, 0));
-		m_debugWindows["Scenes"] = NEW Scuff3dImGuiWindow("Scenes", [&]() { renderImGuiDebug_scenes(); }, ImVec2(0, 0));
-		m_debugWindows["Resource Manager"] = NEW Scuff3dImGuiWindow("Resource Manager", [&]() { renderImGuiDebug_resourceManager(); }, ImVec2(0, 0));
-		m_debugWindows["Application Window"] = NEW Scuff3dImGuiWindow("Application Window", [&]() { m_window->renderImGui(); }, ImVec2(0, 0));
-		m_debugWindows["Performance Tracker"] = NEW Scuff3dImGuiWindow("Performance Tracker", [&]() { m_performanceTracker->renderImGui(); }, ImVec2(800, 0));
-#ifdef _EDITOR
-		//m_debugWindows["Editor Window"] = NEW Scuff3dImGuiWindow("Editor Window", [&]() { m_editorWindow->renderImGui(); }, ImVec2(0, 0));
 
-#endif
-		
-		int i = 0;
-		for (auto& pair : m_debugWindows) {
-			pair.second->setActive(false);
-			pair.second->setPosition((i++) * 100.0f, 0.0f);
-		}
-		m_debugWindows["Hub"]->setActive(true);
-		m_debugWindows["Testing"]->setActive(true);
-
-
-#endif
 	}
 	Application::Application(HWND hwnd) : Application::Application()
 	{
@@ -106,33 +86,60 @@ namespace scuff3d
 		setWindow(m_window->getHandle());
 		return m_window;
 	}
-	bool Application::initRenderer(RenderingAPI api)
-	{
+	bool Application::initRenderer(RenderingAPI api) {
+		bool ret = false;
 		switch (api) {
 		case RenderingAPI::DX11:
 			m_renderer.reset(NEW RendererDX11(m_window->getHandle(), m_window->getClientSize()));
 			m_renderer->setViewPort("standard", { 0,0 }, m_window->getClientSize());
-//#ifdef _EDITOR
-//			m_renderer->addRenderTarget("editor", m_editorWindow->getHandle(), m_editorWindow->getClientSize());
-//			m_renderer->setViewPort("editor", { 0,0 }, m_editorWindow->getClientSize());
-//			m_editorWindow->onResize("resizeEditorViewport", [&](const glm::vec2& size) { 
-//				m_renderer->resize(m_editorWindow->getHandle(), size); 
-//				m_renderer->resizeViewport("editor", size); 
-//				m_editorCamera->getComponent<Camera>()->setAspectratio(size);
-//			});
-//#endif
-			return true;
+			ret = true;
+			break;
 		case RenderingAPI::DX12:
 			m_renderer.reset(NEW RendererDX12(m_handle, m_window->getClientSize()));
-			return true;
+			ret = true;
+			break;
 		default:
-			return false;
+			return ret;
 		}
+#ifdef _EDITOR
+		glm::vec2 origo = m_window->getClientScreenPosition();
+		m_debugWindows["Hub"] = NEW Scuff3dImGuiWindow("Debug Hub", [&]() { renderImGuiDebug_toggle(); }, origo + glm::vec2(0, 0));
+		m_debugWindows["Testing"] = NEW Scuff3dImGuiWindow("Testing", [&]() { renderImGuiDebug_testing(); }, origo + glm::vec2(200, 200));
+		m_debugWindows["Renderer"] = NEW Scuff3dImGuiWindow("Renderer", [&]() { m_renderer->renderImGuiDebug(); }, origo + glm::vec2(0, 0));
+		m_debugWindows["Settings"] = NEW Scuff3dImGuiWindow("Settings", [&]() { renderImGuiDebug_settings(); }, origo + glm::vec2(0, 0));
+		m_debugWindows["Scenes"] = NEW Scuff3dImGuiWindow("Scenes", [&]() { renderImGuiDebug_scenes(); }, origo + glm::vec2(0, 0));
+		m_debugWindows["Resource Manager"] = NEW Scuff3dImGuiWindow("Resource Manager", [&]() { renderImGuiDebug_resourceManager(); }, origo + glm::vec2(500, 200));
+		m_debugWindows["Application Window"] = NEW Scuff3dImGuiWindow("Application Window", [&]() { m_window->renderImGui(); }, origo + glm::vec2(0, 0));
+		m_debugWindows["Performance Tracker"] = NEW Scuff3dImGuiWindow("Performance Tracker", [&]() { m_performanceTracker->renderImGui(); }, origo + glm::vec2(800, 0));
+		int i = 0;
+		for (auto& pair : m_debugWindows) {
+			pair.second->setActive(false);
+			//pair.second->setPosition((i++) * 100.0f, 0.0f);
+		}
+		m_debugWindows["Hub"]->setActive(true);
+		m_debugWindows["Testing"]->setActive(true);
+		m_debugWindows["Resource Manager"]->setActive(true);
 
-		return false;
+
+#endif
+
+		m_resizeMoveUpdateThread = std::thread([&] {
+			while (this->isRunning()) {
+				if (this->m_runResizeMoveUpdateThread) {
+					this->Frame([&] {});
+				}
+				std::this_thread::sleep_for(std::chrono::milliseconds((int)(1)));
+			}
+		});
+
+		return ret;
 	}
 
 	Input* Application::getInput() {
+		return m_window;
+	}
+
+	Window32* Application::getWindow() {
 		return m_window;
 	}
 
@@ -198,7 +205,7 @@ namespace scuff3d
 		m_performanceTracker->beginFrame();
 		m_dt = m_performanceTracker->getDT();
 		m_timeAcc += m_dt;
-		if (m_dt > 0.01f)
+		if (m_dt > (1.0f/60.0f))
 			DEVLOG("FUCKED DT("+std::to_string(m_dt)+")");
 		if (m_timeAcc >= m_fixedTickTime) {
 			m_timeAcc -= m_fixedTickTime;
@@ -402,9 +409,37 @@ namespace scuff3d
 		}
 	}
 	void Application::renderImGuiDebug_testing() {
-		ImGui::Text("Acc: " + std::to_string(m_timeAcc));
-		ImGui::Text("DT: " + std::to_string(m_dt));
-		ImGui::Text("FPS: " + std::to_string(1.0f/m_dt));
+		
+		/*
+		
+		//auto* vp = ImGui::GetMainViewport();
+		//vp->WorkPos;
+		//ImGui::Text(to_string(vp->Pos));
+		//ImGui::Text(to_string(vp->WorkPos));
+
+		//const glm::vec3 transOrig = glm::vec3(0.02f, 0.95f, -0.03f);
+		//static float pitch = 0.0f;
+		//ImGui::SliderFloat("pitch", &pitch,0,5);
+
+		//auto s1 = glm::translate(-transOrig);
+		//auto s2 = glm::rotate(pitch, glm::vec3(1.f, 0.f, 0.f));
+		//auto s3 = glm::translate(transOrig);
+
+		//auto trans = s3 * s2 * s1;
+
+		//ImGui::Text("s1");
+		//scuff3dImGui::Mat4(s1);
+		//ImGui::Text("s2");
+		//scuff3dImGui::Mat4(s2);
+		//ImGui::Text("s3");
+		//scuff3dImGui::Mat4(s3);
+		//ImGui::Text("trans");
+		//scuff3dImGui::Mat4(trans);
+
+
+		*/
+
+
 
 
 
@@ -462,7 +497,7 @@ namespace scuff3d
 							selectedObjectID = -1;
 						}
 						else {
-							selectedObjectID = id;
+							selectedObjectID = (int)id;
 						}
 					}
 						
@@ -515,71 +550,43 @@ namespace scuff3d
 
 		const ImGuiTabBarFlags tabBarFlags = 0;
 		if(ImGui::BeginTabBar("ResourceManagerThings", tabBarFlags)) {
-			if (ImGui::BeginTabItem("Meshes")) {
-				ImGui::BeginGroupPanel("Meshes");
-				static Mesh* selectedMesh = nullptr;
-				for (auto& pair : m_resourceManager->getAllMeshes()) {
-					Mesh* mesh = pair.second;
-					if (ImGui::Selectable(pair.first.c_str(), mesh == selectedMesh, 0, ImVec2(100, 0))) {
-						if (mesh == selectedMesh) {
-							selectedMesh = nullptr;
+			if (ImGui::BeginTabItem("Models")) {
+				ImGui::BeginGroupPanel("Models");
+				static ResourceManager::ModelFile* selectedFile = nullptr;
+				static std::string selectedName = "";
+				for (auto& pair : m_resourceManager->getAllModelFiles()) {
+					ResourceManager::ModelFile* file = pair.second;
+					if (ImGui::Selectable(pair.first.c_str(), file == selectedFile, 0, ImVec2(100, 0))) {
+						if (file == selectedFile) {
+							selectedFile = nullptr;
+							selectedName = "";
 						}
 						else {
-							selectedMesh = mesh;
+							selectedFile = file;
+							selectedName = pair.first;
 						}
 					}
 
 				}
 				ImGui::EndGroupPanel();
-				ImGui::SameLine();
-				ImGui::BeginGroupPanel(selectedMesh? selectedMesh->getName().c_str():"Mesh", ImVec2(200,0)); {
-					if (selectedMesh) {
-						ImGui::Text("Vertices");
-						ImGui::SameLine();
-						ImGui::rText(std::to_string(selectedMesh->getCount()).c_str());
-						ImGui::Text("Indices");
-						ImGui::SameLine();
-						ImGui::rText(std::to_string(selectedMesh->getIndicesCount()).c_str());
-						ImGui::Text("Vertex ByteSize");
-						ImGui::SameLine();
-						ImGui::rText(std::to_string(selectedMesh->vertexByteSize()).c_str());
-						ImGui::Separator();
-						ImGui::BeginGroupPanel("Layout"); {
-							if (selectedMesh->getPositions()) {
-								ImGui::Text("Position");
+				ImGui::SameLine(); 
+				ImGui::BeginGroupPanel(selectedFile ? selectedName : "Name"); {
+
+
+					if (selectedFile) {
+						Mesh* mesh = selectedFile->mesh;
+						if (mesh) {
+							ImGui::BeginGroupPanel("Mesh", ImVec2(200, 0)); {
+								mesh->renderImGui();
 							}
-							if (selectedMesh->getNormals()) {
-								ImGui::Text("Normal");
-							}
-							if (selectedMesh->getTangents()) {
-								ImGui::Text("Tangent");
-							}
-							if (selectedMesh->getBitangents()) {
-								ImGui::Text("BiTangent");
-							}
-							if (selectedMesh->getUvs()) {
-								ImGui::Text("UV");
-							}
-							if (selectedMesh->getColors()) {
-								ImGui::Text("Color");
-							}
+							ImGui::EndGroupPanel();
 						}
-						ImGui::EndGroupPanel();
-
-
 					}
 					else {
-						ImGui::Text("No mesh selected");
+						ImGui::Text("No file selected");
 					}
-
-
 				}
 				ImGui::EndGroupPanel();
-
-				
-
-
-
 				ImGui::EndTabItem();
 			}
 			if (ImGui::BeginTabItem("Sounds")) {
@@ -715,10 +722,26 @@ namespace scuff3d
 		switch (message) {
 
 		case WM_DESTROY:
+
 			exit();
+			m_resizeMoveUpdateThread.join();
 			break;
 		case WM_SYSCOMMAND:
 			if (wParam == SC_KEYMENU && (lParam >> 16) <= 0) return 0;
+			break;
+		case WM_NCPAINT:
+			DEVLOG("NCPAINT")
+				break;
+		case WM_PAINT:
+			DEVLOG("PAINT");
+			break;
+		case WM_ENTERSIZEMOVE:
+			DEVLOG("WM_ENTERSIZEMOVE");
+			m_runResizeMoveUpdateThread = true;
+			break;
+		case WM_EXITSIZEMOVE:
+			DEVLOG("WM_EXITSIZEMOVE");
+			m_runResizeMoveUpdateThread = false;
 			break;
 		}
 

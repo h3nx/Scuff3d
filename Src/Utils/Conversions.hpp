@@ -38,9 +38,6 @@ namespace scuff3d
 
 
 
-	inline glm::vec2 ImVec2ToGlmVec2(const ImVec2& imvec) {
-		return glm::vec2(imvec[0],imvec[1]);
-	}
 	
 }
 

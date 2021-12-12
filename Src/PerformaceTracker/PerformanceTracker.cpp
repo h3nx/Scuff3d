@@ -6,6 +6,7 @@ namespace scuff3d {
 	LARGE_INTEGER frequency;
 	float saveInterval = 1/10.f;
 	float smoothing = 0.90f;
+	float counterUpdateFreq = 1 / 2.0f;
 
 	PerformanceTracker::PerformanceTracker() {
 		QueryPerformanceFrequency(&frequency);
@@ -14,6 +15,7 @@ namespace scuff3d {
 
 		m_structure = {"Root",std::vector<Layer>()};
 		m_current.push("Root");
+		m_dt = m_average = m_max = m_updateAcc = m_presentCounter = 0.0f;
 	}
 	PerformanceTracker::~PerformanceTracker() { }
 	void PerformanceTracker::reset() { 
@@ -24,7 +26,11 @@ namespace scuff3d {
 		QueryPerformanceCounter(&m_timestamp);
 		m_dt = (float)((m_timestamp.QuadPart - m_lastFrame.QuadPart) * 1.0 / frequency.QuadPart);
 		m_average = (m_average * smoothing) + (m_dt * (1.0f - smoothing));
-
+		m_updateAcc += m_dt;
+		if (m_updateAcc > counterUpdateFreq) {
+			m_presentCounter = m_average;
+			m_updateAcc -= counterUpdateFreq;
+		}
 		m_lastFrame = m_timestamp;
 	}
 	void PerformanceTracker::endFrame() { 
@@ -51,14 +57,14 @@ namespace scuff3d {
 
 		ImGui::Text("fps");
 		ImGui::SameLine();
-		ImGui::rText(toString(1.0f/m_average));
+		ImGui::rText(toString(1.0f/m_presentCounter));
 
 		ImGui::SetWindowFontScale(1.0f);
-		ImGui::Text("Saveinterval");
+		ImGui::Text("Update Interval");
 		ImGui::SameLine(110);
-		float hz = 1.0f / saveInterval;
-		if (ImGui::SliderFloat("##interval", &hz, 1, 60)) {
-			saveInterval = 1.0f / hz;
+		float hz = 1.0f / counterUpdateFreq;
+		if (ImGui::SliderFloat("##interval", &hz, 1, 10, "%.1f")) {
+			counterUpdateFreq = 1.0f / hz;
 		}
 		ImGui::Text("Smoothing");
 		ImGui::SameLine(110);
@@ -115,6 +121,7 @@ namespace scuff3d {
 		//	//ImGui::rText(std::to_string(1.0f / m_data[n].getAverage()) + "fps");
 		//}
 		//ImGui::Unindent(10);
+		ImGui::SetWindowFontScale(1.0f);
 	}
 
 

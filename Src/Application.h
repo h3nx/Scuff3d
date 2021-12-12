@@ -10,6 +10,7 @@
 #include "Scuff3dImGui/Window/Scuff3dImGuiWindow.h"
 #include "ResourceManager/ResourceManager.h"
 #include "PerformaceTracker\PerformanceTracker.h"
+#include <thread>
 
 namespace scuff3d
 {
@@ -43,8 +44,7 @@ namespace scuff3d
 		ResourceManager* getResourceManager() { return m_resourceManager.get(); };
 		
 		Input* getInput();
-
-
+		Window32* getWindow();
 
 		/*
 			Frame Stuff
@@ -113,7 +113,6 @@ namespace scuff3d
 
 
 #ifdef _EDITOR
-		Scuff3dWindow32* m_editorWindow;
 		GameObject* m_editorCamera;
 #endif
 
@@ -140,11 +139,9 @@ namespace scuff3d
 
 	private:
 
-//#ifdef _EDITOR
-//		void updateEditor(const float dt);
-//		void updateEditorFixed(const float dt);
-//		void renderEditor();
-//#endif
+		std::thread m_resizeMoveUpdateThread;
+		bool m_runResizeMoveUpdateThread;
+
 
 		void processSceneChanges();
 		enum class SceneChanges {

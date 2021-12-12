@@ -21,9 +21,10 @@ namespace scuff3d
 
 		const glm::vec2 getSize();
 		const glm::vec2 getClientSize();
-		const glm::vec2 getPosition();
-		const glm::vec2 getNormalPosition();
 		const glm::vec2 getNormalSize();
+		const glm::vec2 getPosition();
+		const glm::vec2 getClientScreenPosition();
+		const glm::vec2 getNormalPosition();
 		const bool isMaximised();
 		const bool isMinimised();
 		const bool isFullscreen();

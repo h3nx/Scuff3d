@@ -93,8 +93,9 @@ namespace scuff3d
 		ImGui_ImplWin32_Shutdown();
 		ImGui::DestroyContext();
 
-		clean(); 
 		DEVLOG("CLEANING RENDERER");
+		clean();
+		safeRelease(m_device);
 		m_debug->ReportLiveDeviceObjects(D3D11_RLDO_FLAGS::D3D11_RLDO_DETAIL);
 		m_debug->Release();
 	}
@@ -110,8 +111,8 @@ namespace scuff3d
 		safeReleaseMap(m_shaderResourceViews);
 		safeReleaseMap(m_textures);
 		safeReleaseMap(m_swapChains);
+		safeDeleteMap(m_models);
 		safeRelease(m_deviceContext);
-		safeRelease(m_device);
 	}
 
 
@@ -159,7 +160,7 @@ namespace scuff3d
 
 	void RendererDX11::present(HWND hWnd) {
 
-		m_swapChains[hWnd]->Present(0, 0);
+		m_swapChains[hWnd]->Present(0, DXGI_PRESENT_DO_NOT_WAIT);
 		if (!m_toResize.empty()) {
 			resizeHwnd(m_toResize.back());
 			while (!m_toResize.empty()) {
@@ -487,8 +488,7 @@ namespace scuff3d
 		return temp;
 	}
 
-	ID3D11RasterizerState* RendererDX11::createRasterizerState(const D3D11_FILL_MODE fillmode)
-	{
+	ID3D11RasterizerState* RendererDX11::createRasterizerState(const D3D11_FILL_MODE fillmode) {
 		// Setup rasterizer state.
 		D3D11_RASTERIZER_DESC rasterizerDesc;
 		ZeroMemory(&rasterizerDesc, sizeof(D3D11_RASTERIZER_DESC));
@@ -508,8 +508,7 @@ namespace scuff3d
 		return createRasterizerState(rasterizerDesc);
 	}
 
-	ID3D11RasterizerState* RendererDX11::createRasterizerState(const D3D11_RASTERIZER_DESC& desc)
-	{
+	ID3D11RasterizerState* RendererDX11::createRasterizerState(const D3D11_RASTERIZER_DESC& desc) {
 		ID3D11RasterizerState* temp;
 		// Create the rasterizer state object.
 		HRESULT hr = m_device->CreateRasterizerState(&desc, &temp);
@@ -518,6 +517,7 @@ namespace scuff3d
 			DEVLOG("createRasterizerState failed");
 			return nullptr;
 		}
+		return temp;
 	}
 
 	ID3D11Texture2D* RendererDX11::createTexture(const D3D11_TEXTURE2D_DESC desc) {
@@ -673,6 +673,7 @@ namespace scuff3d
 		cbDesc.MiscFlags = 0;
 		cbDesc.StructureByteStride = 0;
 		ID3D11Buffer* temp = nullptr;
+		//DEVLOG("\tBuffer Created");
 		HRESULT hr = m_device->CreateBuffer(&cbDesc, nullptr, &temp);
 		if (FAILED(hr)) {
 			DEVLOG("buffer creation failed");

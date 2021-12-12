@@ -21,15 +21,15 @@ namespace scuff3d
 	public:
 		Mesh(const std::string& name, const unsigned int count, glm::vec3* position, glm::vec3* normal);
 		Mesh(const std::string& name, const unsigned int count, glm::vec3* position, glm::vec4* colors);
-		Mesh(const std::string& name, const unsigned int count, glm::vec3* position, glm::vec3* normal, glm::vec3* uv);
+		Mesh(const std::string& name, const unsigned int count, glm::vec3* position, glm::vec3* normal, glm::vec2* uv);
 		Mesh(const std::string& name, const unsigned int count, glm::vec3* position, glm::vec3* normal, glm::vec4* colors);
-		Mesh(const std::string& name, const unsigned int count, glm::vec3* position, glm::vec3* normal, glm::vec3* tangent, glm::vec3* bitangent, glm::vec3* uv);
+		Mesh(const std::string& name, const unsigned int count, glm::vec3* position, glm::vec3* normal, glm::vec3* tangent, glm::vec3* bitangent, glm::vec2* uv);
 
 		Mesh(const std::string& name, const unsigned int count, glm::vec3* position, glm::vec3* normal, unsigned int* indices, const unsigned int indCount);
 		Mesh(const std::string& name, const unsigned int count, glm::vec3* position, glm::vec4* colors, unsigned int* indices, const unsigned int indCount);
-		Mesh(const std::string& name, const unsigned int count, glm::vec3* position, glm::vec3* normal, glm::vec3* uv, unsigned int* indices, const unsigned int indCount);
+		Mesh(const std::string& name, const unsigned int count, glm::vec3* position, glm::vec3* normal, glm::vec2* uv, unsigned int* indices, const unsigned int indCount);
 		Mesh(const std::string& name, const unsigned int count, glm::vec3* position, glm::vec3* normal, glm::vec4* colors, unsigned int* indices, const unsigned int indCount);
-		Mesh(const std::string& name, const unsigned int count, glm::vec3* position, glm::vec3* normal, glm::vec3* tangent, glm::vec3* bitangent, unsigned int* indices, const unsigned int indCount);
+		Mesh(const std::string& name, const unsigned int count, glm::vec3* position, glm::vec3* normal, glm::vec3* tangent, glm::vec3* bitangent, glm::vec2* uv, unsigned int* indices, const unsigned int indCount);
 		~Mesh();
 
 		const std::string& getName() const;
@@ -41,22 +41,32 @@ namespace scuff3d
 		const glm::vec3* getNormals() const;
 		const glm::vec3* getTangents() const;
 		const glm::vec3* getBitangents() const;
-		const glm::vec3* getUvs() const;
+		const glm::vec2* getUvs() const;
 		const glm::vec4* getColors() const;
 
-		// Warning exporting data in the same order as the enum
+		// Returns all existing data, see enum for order
+		// delete when done, returns copy
 		void* getData();
+		// delete when done, returns copy
 		void* getData(const MeshDataFlags flags);
+		// Returns vertex Bytesize of existing data
 		const unsigned int vertexByteSize();
+		// Returns vertex Bytesize for selected data
+
 		static const int vertexByteSize(const MeshDataFlags flags);
 		const int numberOfFlags();
+		// Returns number of existing dataflags
 		static const int numberOfFlags(const MeshDataFlags flags);
 		const MeshDataFlags getFlags();
 
+		void renderImGui();
 
 		static Mesh* CreateCube(const glm::vec3& size = { 1,1,1 }, const glm::vec3& origin = { 0,0,0 });
+		static Mesh* CreateCube(const int size, const glm::vec3& origin = { 0,0,0 });
 		static Mesh* CreateCubeQuadMesh(const glm::vec3& size = { 1,1,1 }, const glm::vec3& origin = { 0,0,0 });
 	private:
+		Mesh(const std::string& name, const unsigned int count);
+		Mesh(const std::string& name, const unsigned int count, glm::vec3* positions, glm::vec3* normals, glm::vec3* tangents, glm::vec3* bitangents, glm::vec2* uv, glm::vec4* colors, unsigned int* indices, const unsigned int indCount);
 		std::string m_name;
 		unsigned int m_indicesCount;
 		unsigned int m_count;
@@ -65,8 +75,19 @@ namespace scuff3d
 		glm::vec3* m_normals;
 		glm::vec3* m_tangents;
 		glm::vec3* m_bitangents;
-		glm::vec3* m_uvs;
+		glm::vec2* m_uvs;
 		glm::vec4* m_colors;
+
+		void setName(const std::string& name);
+		void setCount(const int& count);
+		void setIndicesCount(const int& indCount);
+		void setIndices(unsigned int* indices);
+		void setPositions(glm::vec3* positions);
+		void setNormals(glm::vec3* normals);
+		void setTangents(glm::vec3* tangents);
+		void setBitangents(glm::vec3* bitangents);
+		void setUvs(glm::vec2* uvs);
+		void setColors(glm::vec4* colors);
 	};
 
 

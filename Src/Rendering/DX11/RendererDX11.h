@@ -1,7 +1,7 @@
 #pragma once
 #include "../API/Renderer.h"
-#include <d3d11.h>
-#include <dxgi1_2.h>
+#include <d3d11_4.h>
+#include <dxgi1_6.h>
 #include <d3dcompiler.h>
 #include "glm/glm.hpp"
 #include <d3d11shadertracing.h>
@@ -100,14 +100,14 @@ namespace scuff3d
 
 		void clean();
 
-		ID3D11Device* m_device;
+		ID3D11Device* m_device; // live?
 		ID3D11Debug* m_debug;
 		ID3D11DeviceContext* m_deviceContext;
 		std::map<HWND, IDXGISwapChain1*> m_swapChains;
 		std::map<IDXGISwapChain1*, ID3D11RenderTargetView*> m_renderTargetViews;
 		glm::vec2 m_size;
-		std::map<std::string, ID3D11RasterizerState*> m_rasterizerStates;
-		std::map<std::string, ID3D11Buffer*> m_constantBuffers;
+		std::map<std::string, ID3D11RasterizerState*> m_rasterizerStates; // live?
+		std::map<std::string, ID3D11Buffer*> m_constantBuffers; // live?
 		std::map<std::string, D3D11_VIEWPORT> m_viewports;
 		std::map<std::string, ID3D11DeviceChild*> m_shaderData;
 		std::map<ID3D11DeviceChild*, ID3D11InputLayout*> m_inputLayouts;

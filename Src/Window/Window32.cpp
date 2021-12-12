@@ -10,6 +10,7 @@ namespace scuff3d
 		m_identifier = this->registerClass(name);
 		m_handle = this->createWindow(size, pos, name);
 		ShowWindow(m_handle, maximised ? SW_SHOWMAXIMIZED : SW_SHOWNORMAL);
+		UpdateWindow(m_handle);
 		m_fullscreen = false;
 
 	}
@@ -22,6 +23,8 @@ namespace scuff3d
 		glm::vec2 size = { GetSystemMetrics(SM_CXSCREEN), GetSystemMetrics(SM_CYSCREEN) };
 		m_handle = this->createWindow(size, pos, name, WS_POPUP);
 		ShowWindow(m_handle, SW_SHOWNORMAL);
+		UpdateWindow(m_handle);
+
 		m_fullscreen = true;
 	}
 	Window32::~Window32() {
@@ -50,6 +53,13 @@ namespace scuff3d
 	const glm::vec2 Window32::getPosition() {
 		RECT rect = getRect();
 		return glm::vec2(rect.left, rect.top);
+	}
+	const glm::vec2 Window32::getClientScreenPosition() {
+		POINT p;
+		p.x = 0;
+		p.y = 0;
+		ClientToScreen(m_handle, &p);
+		return glm::vec2((float)p.x, (float)p.y);
 	}
 	const glm::vec2 Window32::getNormalPosition() {
 		auto& rect = getNormalRect();

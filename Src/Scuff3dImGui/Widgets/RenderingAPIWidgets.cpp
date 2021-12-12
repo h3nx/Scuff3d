@@ -81,7 +81,7 @@ namespace scuff3dImGui {
 		const glm::vec3* normals = mesh->getNormals();
 		const glm::vec3* tangents = mesh->getTangents();
 		const glm::vec3* bitangents = mesh->getBitangents();
-		const glm::vec3* uvs = mesh->getUvs();
+		const glm::vec2* uvs = mesh->getUvs();
 		const glm::vec4* colors = mesh->getColors();
 
 

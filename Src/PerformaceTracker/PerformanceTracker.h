@@ -57,10 +57,12 @@ namespace scuff3d {
 	private:
 
 		LARGE_INTEGER m_timestamp, m_lastFrame;
+		float m_presentCounter;
 		float m_dt;
 		float m_average;
 		float m_max;
 		float m_min;
+		float m_updateAcc;
 		std::vector<float> m_history;
 
 

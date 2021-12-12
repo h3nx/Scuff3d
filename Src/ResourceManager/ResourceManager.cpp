@@ -2,41 +2,37 @@
 #include "ResourceManager.h"
 #include "glm/glm.hpp"
 #include "Rendering/API/Geometry/Mesh.h"
+#include "Utils/Helpers.h"
+#include <fbxsdk.h>
+
 
 namespace scuff3d {
 	ResourceManager::ResourceManager() {
 
 	}
 	ResourceManager::~ResourceManager() {
-		for (auto& pair : m_meshes) {
-			if(pair.second)
-				delete pair.second;
-			pair.second = nullptr;
-		}
+		scuff3d::safeDeleteMap(m_files);
+		//scuff3d::safeDeleteMap(m_meshes);
 	}
 	Mesh* ResourceManager::getMesh(const std::string& name)
-	{
-		if (m_meshes.find(name) != m_meshes.end())
-			return m_meshes[name];
+	{ 
+		if (m_files.find(name) != m_files.end())
+			return m_files[name]->mesh;
 		return nullptr;
 	}
 	std::map<std::string, Mesh*> ResourceManager::getAllMeshes()
 	{
-		return m_meshes;
+		//return m_meshes;
+		return std::map<std::string, Mesh*>();
 	}
-	void ResourceManager::loadFBX(const std::string& filename) {
 
-
-
-
-
-
-
-
+	std::map<std::string, ResourceManager::ModelFile*>& ResourceManager::getAllModelFiles() {
+		return m_files;
 	}
-	void ResourceManager::loadFBXAnimation(const std::string& filename, const std::string& stackName) {
 
-	}
+
+
+
 	void ResourceManager::loadObj(const std::string& accessName, const std::string& filename) {
 
 		std::string name;
@@ -50,7 +46,7 @@ namespace scuff3d {
 		std::vector<glm::vec3> finalNormals;
 		std::vector<glm::vec2> finalUVs;
 		std::vector<glm::vec4> finalColors;
-		std::vector<int> finalIndices;
+		std::vector<unsigned int> finalIndices;
 
 		std::fstream file(filename); //Open file
 		std::string line;
@@ -75,19 +71,18 @@ namespace scuff3d {
 			return v; 
 		};
 
-
 		std::function<glm::vec3(std::string)> getVec3 = [](std::string line) {
 			glm::vec3 vert;
 			size_t pos = 0;
 			//line = line.substr(pos + 2);
 			pos = line.find(" ");
 			vert.x = std::stof(line.substr(0, pos));
-
 			line = line.substr(pos + 1);
+
 			pos = line.find(" ");
 			vert.y = std::stof(line.substr(0, pos));
-
 			line = line.substr(pos + 1);
+
 			pos = line.find(" ");
 			vert.z = std::stof(line.substr(0, pos));
 			return vert;
@@ -203,29 +198,33 @@ namespace scuff3d {
 
 		}
 
-		glm::vec3* p = new glm::vec3[finalPositions.size()];
-		glm::vec3* n = new glm::vec3[finalPositions.size()];
-		//glm::vec2* uv = new glm::vec2[finalPositions.size()];
-		glm::vec4* c = new glm::vec4[finalPositions.size()];
-		unsigned int* ind = new unsigned int[finalIndices.size()];
-
-		memcpy(p, finalPositions.data(), finalPositions.size() * sizeof(glm::vec3));
-		memcpy(n, finalNormals.data(), finalPositions.size() * sizeof(glm::vec3));
-		memcpy(c, finalColors.data(), finalPositions.size() * sizeof(glm::vec4));
-		memcpy(ind, finalIndices.data(), finalIndices.size() * sizeof(unsigned int));
-
-
-		addMesh(accessName, new Mesh(accessName, (unsigned int)finalPositions.size(), p, n, c, ind, (unsigned int)finalIndices.size()));
-
-
-
-
+		const size_t size = finalPositions.size();
+	
+		addFile(
+			accessName, 
+			filename, 
+			new Mesh(
+				accessName, 
+				(unsigned int)finalPositions.size(), 
+				finalPositions.data(), 
+				finalNormals.data(), 
+				finalColors.data(), 
+				finalIndices.data(), 
+				(unsigned int)finalIndices.size()
+			)
+		);
 	}
 	void ResourceManager::loadTexture(const std::string& filename) {
 
 	}
+	void ResourceManager::addFile(const std::string& accessName, ModelFile* file) {
+		m_files[getNextAvailableName(accessName, m_files)] = file;
+	}
+	void ResourceManager::addFile(const std::string& accessName, const std::string& fileName, Mesh* mesh, Skeleton* skeleton, AnimationStack* animStack) {
+		addFile(accessName, new ModelFile{ fileName, mesh, skeleton, animStack });
+	}
 	void ResourceManager::addMesh(const std::string& name, Mesh* mesh) {
 		
-		m_meshes[getNextAvailableName(mesh->getName(),m_meshes)] = mesh;
+		//m_meshes[getNextAvailableName(mesh->getName(),m_meshes)] = mesh;
 	}
 }
