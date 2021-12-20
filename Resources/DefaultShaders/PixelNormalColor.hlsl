@@ -7,5 +7,5 @@ struct PS_IN
 
 float4 main(PS_IN input) : SV_TARGET
 {
-	return input.color;
+	return float4(input.normal,1);
 }

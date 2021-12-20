@@ -29,11 +29,10 @@ VS_OUT main(VS_IN input)
 	output.pos = mul(WorldMatrix, output.pos);
 	output.pos = mul(ViewMatrix, output.pos);
 	output.pos = mul(ProjectionMatrix, output.pos);
-	
+	output.normal = normalize(mul(WorldMatrix, float4(input.normal,0)).xyz);
 
-	output.normal = input.normal;
 	//output.color = mul(WorldMatrix, float4(input.pos, 1.f));
 	output.color = input.color;
 
 	return output;
-}
+} 

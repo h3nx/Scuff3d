@@ -3,6 +3,7 @@
 #include <map>
 #include <vector>
 #include "Utils/Helpers.h"
+#include "Importers/FbxImporter.h"
 
 
 namespace scuff3d {
@@ -56,8 +57,16 @@ namespace scuff3d {
 		std::map<std::string, ModelFile*> m_files;
 		//std::map<std::string, Mesh*> m_meshes;
 
+
 		template<typename T>
 		std::string getNextAvailableName(const std::string& name, std::map<std::string, T> m);
+
+
+		// IMPORTERS
+
+		FbxImporter m_fbxImporter;
+
+
 
 	};
 

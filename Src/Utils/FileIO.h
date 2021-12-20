@@ -32,6 +32,8 @@ namespace scuff3d
 		return false;
 	}
 
+	
+
 	const std::string currentDateTime() {
 		//https://stackoverflow.com/questions/997946/how-to-get-current-time-and-date-in-c
 		time_t     now = time(0);

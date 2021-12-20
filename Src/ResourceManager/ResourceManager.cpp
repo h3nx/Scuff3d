@@ -3,7 +3,6 @@
 #include "glm/glm.hpp"
 #include "Rendering/API/Geometry/Mesh.h"
 #include "Utils/Helpers.h"
-#include <fbxsdk.h>
 
 
 namespace scuff3d {
@@ -28,6 +27,16 @@ namespace scuff3d {
 
 	std::map<std::string, ResourceManager::ModelFile*>& ResourceManager::getAllModelFiles() {
 		return m_files;
+	}
+
+	void ResourceManager::loadFBX(const std::string& accessName, const std::string& filename, bool checkCache) {
+		Mesh* m = nullptr;
+		Skeleton* s = nullptr;
+		AnimationStack* a = nullptr;
+
+		if (m_fbxImporter.loadFile(filename, m, s, a)) {
+			addFile(accessName, filename, m, s, a);
+		}
 	}
 
 

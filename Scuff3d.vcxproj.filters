@@ -177,6 +177,9 @@
     <ClInclude Include="Src\ResourceManager\Importers\FbxImporter.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="Src\Rendering\API\Animation\Skeleton.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Src\pch.cpp">
@@ -297,6 +300,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Src\ResourceManager\Importers\FbxImporter.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Src\Rendering\API\Animation\Skeleton.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
