@@ -141,7 +141,7 @@ namespace scuff3d
 
 		std::thread m_resizeMoveUpdateThread;
 		bool m_runResizeMoveUpdateThread;
-
+		bool m_inFrame;
 
 		void processSceneChanges();
 		enum class SceneChanges {

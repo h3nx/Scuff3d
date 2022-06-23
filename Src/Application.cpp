@@ -21,7 +21,8 @@ namespace scuff3d
 		m_timeAcc(0.0f), m_dt(0.0f), m_fixedFrame(false), 
 		m_runResizeMoveUpdateThread(false),
 		m_editorCamera(nullptr),
-		m_window(nullptr)
+		m_window(nullptr),
+		m_inFrame(false)
 	{
 		QueryPerformanceFrequency(&m_frequency);
 		QueryPerformanceCounter(&m_start);
@@ -128,7 +129,7 @@ namespace scuff3d
 				if (this->m_runResizeMoveUpdateThread) {
 					this->Frame([&] {});
 				}
-				std::this_thread::sleep_for(std::chrono::milliseconds((int)(1)));
+				std::this_thread::sleep_for(std::chrono::milliseconds((int)(13)));
 			}
 		});
 
@@ -145,6 +146,11 @@ namespace scuff3d
 
 	void Application::Frame(std::function<void()> imguiFunc) {
 		if (!m_running) return;
+		if (m_inFrame) {
+			DEVLOGWARNING("Attemped dual frame");
+			return;
+		}
+		m_inFrame = true;
 		m_performanceTracker->begin("Application");
 		processSceneChanges();
 		beginFrame();
@@ -192,7 +198,7 @@ namespace scuff3d
 		endFrame();
 		m_performanceTracker->end("Application");
 
-
+		m_inFrame = false;
 	}
 
 	//returns dt
