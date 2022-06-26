@@ -17,7 +17,7 @@ namespace scuff3d
 
 	}
 	void RendererDX11::init() {
-		ImGui_ImplWin32_EnableDpiAwareness();
+		//ImGui_ImplWin32_EnableDpiAwareness();
 		UpdateWindow(m_renderTarget);
 
 		initDevice();
