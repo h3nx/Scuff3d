@@ -171,13 +171,25 @@
     <ClInclude Include="Src\Utils\Development\Misc.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Src\Objects\Components\Physics3D\BasicPhysics.h">
+    <ClInclude Include="Src\Objects\Components\Physics\Physics3D\BasicPhysics.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Src\ResourceManager\Importers\FbxImporter.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Src\Rendering\API\Animation\Skeleton.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Src\Objects\Components\Physics\Physics3D\Collider.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Src\Physics\Colliders\Collider.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Src\Physics\Colliders\SphereCollider.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Src\Physics\Physics3D\Ray.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
@@ -296,13 +308,22 @@
     <ClCompile Include="Libraries\imgui\imgui_widgets.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Src\Objects\Components\Physics3D\BasicPhysics.cpp">
+    <ClCompile Include="Src\Objects\Components\Physics\Physics3D\BasicPhysics.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Src\ResourceManager\Importers\FbxImporter.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Src\Rendering\API\Animation\Skeleton.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Src\Physics\Colliders\Collider.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Src\Physics\Colliders\SphereCollider.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Src\Physics\Physics3D\Ray.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
