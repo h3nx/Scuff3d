@@ -5,7 +5,7 @@
 
 namespace Scuff3d {
 	namespace Physics {
-
+		class Collider;
 		struct ColliderHitInfo {
 			const Collider* collider;
 			const glm::vec3 position;
