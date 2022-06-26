@@ -49,6 +49,7 @@
     <ClCompile Include="Src\Objects\Component.cpp" />
     <ClCompile Include="Src\Objects\Components\Camera.cpp" />
     <ClCompile Include="Src\Objects\Components\CameraController.cpp" />
+    <ClCompile Include="Src\Objects\Components\Model.cpp" />
     <ClCompile Include="Src\Objects\Components\Physics\Physics3D\BasicPhysics.cpp" />
     <ClCompile Include="Src\Objects\Components\Transform.cpp" />
     <ClCompile Include="Src\Objects\Object.cpp" />

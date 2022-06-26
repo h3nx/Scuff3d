@@ -13,6 +13,8 @@ namespace scuff3d
 		~Model() {};
 		ModelData* getData() { return m_data; };
 
+		void render(const float& dt, Renderer* renderer) override;
+
 	private:
 		ModelData* m_data;
 

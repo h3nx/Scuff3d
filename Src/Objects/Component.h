@@ -1,6 +1,9 @@
 #pragma once
 //#include "Object.h"
 //#pragma message("compiling Component")
+#include "Rendering/API/Renderer.h"
+
+
 namespace scuff3d
 {
 	extern int componentID;
@@ -15,6 +18,7 @@ namespace scuff3d
 		};
 		virtual void init() { };
 		virtual void destroy() { };
+		virtual void render(const float& dt, Renderer* renderer) { };
 		virtual void preUpdate(const float& dt) { };
 		virtual void update(const float& dt) { };
 		virtual void postUpdate(const float& dt) { };
