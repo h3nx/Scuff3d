@@ -192,6 +192,12 @@
     <ClInclude Include="Src\Physics\Physics3D\Ray.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="Src\Objects\System.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Src\Objects\ECS.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Src\pch.cpp">
@@ -324,6 +330,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Src\Physics\Physics3D\Ray.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Src\Objects\System.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

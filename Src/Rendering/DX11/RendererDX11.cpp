@@ -271,6 +271,10 @@ namespace scuff3d
 		);
 	}
 
+	ModelData* RendererDX11::getModel(const std::string& name) {
+		return m_models[m_modelNames[name]];
+	}
+
 	void RendererDX11::renderImGuiDebug() {
 		ImGui::BeginGroupPanel("Viewports");
 		{

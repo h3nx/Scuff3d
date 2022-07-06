@@ -47,6 +47,8 @@ namespace scuff3d {
 		virtual ModelData* createModel(const std::string& name, Mesh* data) { return nullptr; };
 		virtual ModelData* createModel(const std::string& name, Mesh* data, Shader* vertex, Shader* pixel, Shader* geometry, Shader* hull, Shader* domain) { return nullptr; };
 		virtual ModelData* createModel(const std::string& name, Mesh* data, const std::string& vertex, const std::string& pixel, const std::string& geometry = "", const std::string& hull = "", const std::string& domain = "") { return nullptr; };
+		virtual ModelData* getModel(const std::string& name) { return nullptr; };
+
 		void setMainCamera(CameraData* camera);
 		CameraData* getMainCamera();
 

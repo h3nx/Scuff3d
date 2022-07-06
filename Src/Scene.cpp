@@ -99,6 +99,11 @@ namespace scuff3d {
 		return addObject(new GameObject(name));
 	}
 
+	GameObject* Scene::createObject(const std::string& name, GameObject* parent, const glm::vec3& position)
+	{
+		return nullptr;
+	}
+
 	void Scene::removeObject(const std::string& name) {
 	}
 	void Scene::removeObject(const size_t& id) {
