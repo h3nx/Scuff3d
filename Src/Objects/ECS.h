@@ -2,9 +2,10 @@
 #include "Objects/Components.h"
 
 
-namespace Scuff3d {
+namespace scuff3d {
 
 	class GameObject;
+
 	class ECS {
 		friend GameObject;
 		
@@ -14,10 +15,14 @@ namespace Scuff3d {
 
 		GameObject* createObject(const std::string& name, GameObject* parent = nullptr, const glm::vec3& position = { 0.0f, 0.0f, 0.0f });
 
-		GameObject* find(const std::string& name);
 		GameObject* find(const size_t& id);
 
 		void findAll(const std::string& name, std::vector<GameObject*>& objects);
+
+
+		void destroy(GameObject* object);
+		void destroy(const size_t& id);
+		
 
 
 
@@ -46,6 +51,8 @@ namespace Scuff3d {
 
 
 		std::map<size_t, GameObject*> m_gameObjects;
+		std::map<int, std::map<size_t, GameObject*>> m_components;
+
 		std::map<size_t, void*> m_systems;
 
 
@@ -59,6 +66,9 @@ namespace Scuff3d {
 		void removeObject(const size_t& id);
 		void removeObject(GameObject* object);
 
+
+		void registerComponent(const int componentID, const size_t& objectID);
+		void registerComponent(const int componentID, GameObject* object);
 
 
 

@@ -11,7 +11,7 @@
 namespace scuff3d {
 
 	class GameObject;
-	class Scene : public Scuff3d::ECS
+	class Scene : public scuff3d::ECS
 	{
 		friend class Application;
 	public:
