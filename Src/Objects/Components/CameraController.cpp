@@ -66,10 +66,12 @@ namespace scuff3d {
 	void CameraController::setInControl(const bool state) { 
 		m_inControl = state;
 		if (m_inControl) {
+			m_input->hideCursor(true);
 			m_input->lockCursor(true);
 			m_input->hideCursor(true);
 		}
 		else {
+			m_input->hideCursor(false);
 			m_input->lockCursor(false);
 			m_input->hideCursor(false);
 

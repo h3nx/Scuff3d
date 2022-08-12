@@ -1,74 +1,47 @@
 #include "pch.h"
 #include "Scene.h"
 #include <algorithm>
-//#include "Objects/Object.h"
+#include "Objects/Systems/RenderSystem.h"
+
 
 namespace scuff3d {
 
 	Scene::Scene(const std::string& name) :
 		m_name(name)
-	{ }
+	{ 
+	
+	}
 
 	Scene::~Scene() {
-		for (auto& pair : m_gameObjects) {
-			if (pair.second)
-				delete pair.second;
-			pair.second = nullptr;
-		}
+		
 	}
 
 	bool Scene::init() {
+
+		addSystem(NEW RenderSystem(m_app->getRenderer()), 1000);
+
+
 		return true;
 	}
 
 	void Scene::preUpdate(const float dt) {
-		for (auto& pair : m_gameObjects) {
-			GameObject* object = pair.second;
-			//Transform* transform = object->getComponent<Transform>();
-			for (auto& compPair : object->m_components) {
-				compPair.second->preUpdate(dt);
-			}
-		}
+		
 	}
 
 	void Scene::update(const float dt) {
-		for (auto& pair : m_gameObjects) {
-			GameObject* object = pair.second;
-			//Transform* transform = object->getComponent<Transform>();
-			for (auto& compPair : object->m_components) {
-				compPair.second->update(dt);
-			}
-		}
+		ECS::update(dt);
 	}
 
 	void Scene::postUpdate(const float dt) {
-		for (auto& pair : m_gameObjects) {
-			GameObject* object = pair.second;
-			//Transform* transform = object->getComponent<Transform>();
-			for (auto& compPair : object->m_components) {
-				compPair.second->postUpdate(dt);
-			}
-		}
+		
 	}
 
 	void Scene::preFixedUpdate(const float dt) {
-		for (auto& pair : m_gameObjects) {
-			GameObject* object = pair.second;
-			//Transform* transform = object->getComponent<Transform>();
-			for (auto& compPair : object->m_components) {
-				compPair.second->preFixedUpdate(dt);
-			}
-		}
+		
 	}
 
 	void Scene::fixedUpdate(const float dt) {
-		for (auto& pair : m_gameObjects) {
-			GameObject* object = pair.second;
-			//Transform* transform = object->getComponent<Transform>();
-			for (auto& compPair : object->m_components) {
-				compPair.second->fixedUpdate(dt);
-			}
-		}
+		ECS::fixedUpdate(dt);
 	}
 
 	void Scene::postFixedUpdate(const float dt) {
@@ -80,10 +53,8 @@ namespace scuff3d {
 	}
 
 	void Scene::render() {
-		for (auto& pair : m_gameObjects) {
-			GameObject* object = pair.second;
-			
-		}
+		
+		ECS::render(0);
 	}
 
 	void Scene::postRender() {
@@ -91,27 +62,6 @@ namespace scuff3d {
 	}
 
 
-	GameObject* Scene::addObject(GameObject* obj) {
-		m_gameObjects[obj->getID()] = obj;
-		return obj;
-	}
-	GameObject* Scene::addObject(const std::string& name, GameObject* parent) {
-		return addObject(new GameObject(name));
-	}
-
-	GameObject* Scene::createObject(const std::string& name, GameObject* parent, const glm::vec3& position)
-	{
-		return nullptr;
-	}
-
-	void Scene::removeObject(const std::string& name) {
-	}
-	void Scene::removeObject(const size_t& id) {
-	}
-	void Scene::removeObject(GameObject* object) {
-	}
-
-	
 
 	GameObject* Scene::find(const std::string& name) {
 		auto it = ::std::find_if(m_gameObjects.begin(), m_gameObjects.end(), 

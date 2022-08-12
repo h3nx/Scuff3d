@@ -51,8 +51,12 @@
     <ClCompile Include="Src\Objects\Components\CameraController.cpp" />
     <ClCompile Include="Src\Objects\Components\Physics\Physics3D\BasicPhysics.cpp" />
     <ClCompile Include="Src\Objects\Components\Transform.cpp" />
+    <ClCompile Include="Src\Objects\ECS.cpp" />
     <ClCompile Include="Src\Objects\Object.cpp" />
     <ClCompile Include="Src\Objects\System.cpp" />
+    <ClCompile Include="Src\Objects\Systems\BasicPhysicsSystem.cpp" />
+    <ClCompile Include="Src\Objects\Systems\CameraControllerSystem.cpp" />
+    <ClCompile Include="Src\Objects\Systems\RenderSystem.cpp" />
     <ClCompile Include="Src\pch.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
@@ -109,6 +113,9 @@
     <ClInclude Include="Src\Objects\ECS.h" />
     <ClInclude Include="Src\Objects\Object.h" />
     <ClInclude Include="Src\Objects\System.h" />
+    <ClInclude Include="Src\Objects\Systems\BasicPhysicsSystem.h" />
+    <ClInclude Include="Src\Objects\Systems\CameraControllerSystem.h" />
+    <ClInclude Include="Src\Objects\Systems\RenderSystem.h" />
     <ClInclude Include="Src\Physics\Colliders\Collider.h" />
     <ClInclude Include="Src\Physics\Colliders\SphereCollider.h" />
     <ClInclude Include="Src\Physics\Physics3D\Ray.h" />
@@ -257,6 +264,7 @@
       <AdditionalIncludeDirectories>Libraries;Src;Libraries\FBXSDK2020\include</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp17</LanguageStandard>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
+      <ExternalWarningLevel>TurnOffAllWarnings</ExternalWarningLevel>
     </ClCompile>
     <Link>
       <SubSystem>

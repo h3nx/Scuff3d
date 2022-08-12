@@ -268,7 +268,8 @@ namespace scuff3d
 			//}
 		//}
 
-		return m_renderMatrix;
+		//return m_renderMatrix;
+		return getMatrix();
 	}
 
 	const glm::mat4& TransformData::getRenderMatrixLastFrame() const {

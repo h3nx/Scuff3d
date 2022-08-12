@@ -8,4 +8,16 @@ namespace scuff3dImGui {
 		ImGui::Text("("+std::to_string(vec.x) + "," + std::to_string(vec.y) + ")");
 	}
 
+	inline void Vec3Var(const std::string& name, glm::vec3& vec, const float& offset = 0) {
+		ImGui::Text(name.c_str());
+		ImGui::SameLine(offset);
+
+		float* ptr = static_cast<float*>(&vec.x);
+		ImGui::PushID(ptr);
+		if (ImGui::DragFloat3("##vec", ptr, 0.1f)) {
+			
+		}
+		ImGui::PopID();
+	}
+
 }

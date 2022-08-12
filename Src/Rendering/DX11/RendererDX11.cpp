@@ -123,7 +123,6 @@ namespace scuff3d
 		
 		/*if (i > 0)
 			return false;*/
-
 		glm::vec4 gvec4(0, 0, 0, 1);
 		if (!&m_renderTargetViews[m_swapChains[hWnd]]) {
 			return false;
@@ -137,8 +136,11 @@ namespace scuff3d
 		m_deviceContext->RSSetViewports(1, &m_viewports[viewport]);
 		m_deviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 		CameraData* cam = camera ? camera : m_mainCamera;
+		if (!cam) {
+			return false;
+		}
 		setBufferData(
-			m_constantBuffers["FrameData"], 
+			m_constantBuffers["FrameData"],
 			FrameBuffer(
 				cam->getViewMatrix(),
 				cam->getProjectionMatrix()
