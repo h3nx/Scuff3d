@@ -4,14 +4,14 @@
 #include <map>
 #include <queue>
 #include "Application.h"
-#include "Objects/Components.h"
+#include "Objects/ECS.h"
 //
 
 
 namespace scuff3d {
 
 	class GameObject;
-	class Scene
+	class Scene : public scuff3d::ECS
 	{
 		friend class Application;
 	public:
@@ -32,13 +32,8 @@ namespace scuff3d {
 		virtual void render();
 		virtual void postRender();
 
-		// add usermade object
-		GameObject* addObject(GameObject* obj);
-		// add empty object with <name> at (0,0,0)
-		GameObject* addObject(const std::string& name, GameObject* parent = nullptr);
-		void removeObject(const std::string& name);
-		void removeObject(const size_t& id);
-		void removeObject(GameObject* object);
+		
+
 
 		GameObject* find(const std::string& name);
 		GameObject* find(const size_t& id);
@@ -55,9 +50,6 @@ namespace scuff3d {
 		Application* m_app;
 		bool m_active;
 		
-		std::map<size_t, GameObject*> m_gameObjects;
-		std::queue<size_t> m_addedGameObjects;
-		std::queue<size_t> m_deletedGameObjects;
 
 	private:
 		const bool exists(const size_t& id) const;

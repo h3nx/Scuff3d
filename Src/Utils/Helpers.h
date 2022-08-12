@@ -13,7 +13,16 @@
 namespace scuff3d {
 
 
+	inline const std::string currentDateTime() {
+		//https://stackoverflow.com/questions/997946/how-to-get-current-time-and-date-in-c
+		time_t     now = time(0);
+		struct tm  tstruct;
+		char       buf[80];
+		localtime_s(&tstruct, &now);
+		strftime(buf, sizeof(buf), "%H%M%S", &tstruct);
 
+		return buf;
+	}
 
 
 	template<typename type>

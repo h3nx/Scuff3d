@@ -18,6 +18,9 @@ namespace scuff3d
 	private:
 		ModelData* m_data;
 
+
+
+
 	};
 
 

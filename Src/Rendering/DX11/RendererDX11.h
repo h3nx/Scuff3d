@@ -53,6 +53,9 @@ namespace scuff3d
 			const std::string& domain = ""
 		);
 
+		ModelData* getModel(const std::string& name);
+
+
 		void renderImGuiDebug();
 		void setViewPort(const std::string& name, const glm::vec2& pos, const glm::vec2& size);
 

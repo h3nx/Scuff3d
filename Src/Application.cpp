@@ -665,6 +665,7 @@ namespace scuff3d
 		while (!m_sceneChanges.empty()) {
 			auto item = m_sceneChanges.front();
 			m_sceneChanges.pop();
+			Scene* s = nullptr;
 			std::vector<Scene*>::iterator it;
 			#ifdef _DEBUG
 				std::string scenes = "";
@@ -674,6 +675,7 @@ namespace scuff3d
 				DEVLOG("Adding scene (" + item.second->getName() + ")");
 				m_sceneStack.push_back(item.second);
 				item.second->m_app = this;
+				item.second->Scene::init();
 				item.second->init();
 				item.second->setActive(true);
 				break;
