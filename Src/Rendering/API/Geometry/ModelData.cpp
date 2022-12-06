@@ -42,7 +42,7 @@ namespace scuff3d {
 		m_pixelShader = shader;
 	}
 
-	const Mesh* ModelData::getMesh() const {
+	Mesh* ModelData::getMesh() {
 		return m_mesh;
 	}
 

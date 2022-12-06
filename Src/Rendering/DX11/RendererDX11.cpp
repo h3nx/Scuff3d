@@ -158,7 +158,7 @@ namespace scuff3d
 	void RendererDX11::renderWireFrame(ModelData* model, const glm::mat4& matrix) {
 		renderModel(model, matrix, m_rasterizerStates["wireframe"]);
 	}
-
+	
 
 	void RendererDX11::present(HWND hWnd) {
 

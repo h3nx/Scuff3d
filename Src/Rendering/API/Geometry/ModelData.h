@@ -18,7 +18,7 @@ namespace scuff3d
 		void setDomainShader(Shader* shader);
 		void setPixelShader(Shader* shader);
 
-		const Mesh* getMesh() const;
+		Mesh* getMesh();
 		Shader* getVertexShader();
 		Shader* getGeometryShader();
 		Shader* getHullShader();

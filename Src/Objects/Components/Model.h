@@ -14,7 +14,7 @@ namespace scuff3d
 		ModelData* getData() { return m_data; };
 
 		void render(const float& dt, Renderer* renderer) override;
-
+		void renderImGui() override;
 	private:
 		ModelData* m_data;
 

@@ -27,6 +27,10 @@ namespace scuff3d
 		void renderSolid(ModelData* model, const glm::mat4& matrix);
 		void renderWireFrame(ModelData* model, const glm::mat4& matrix);
 
+		//void registerPointLight(const size_t& id, 
+
+
+
 		//void resize(const std::string& name, const glm::vec2& size);
 		void resizeViewport(const std::string& name, const glm::vec2& size);
 		void renderImGui(std::function<void()> imguiFunc);

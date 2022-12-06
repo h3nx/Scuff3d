@@ -70,6 +70,9 @@ namespace scuff3d {
 			std::string line = text;
 			std::string current = "";
 			int pos = 0;
+			if (text == "") {
+				return v;
+			}
 			while (pos != std::string::npos) {
 				pos = line.find("/");
 				current = line.substr(0, pos);
@@ -109,15 +112,23 @@ namespace scuff3d {
 			return vert;
 		};
 
-
+		std::function<void(std::string& txt)> removeTrailingSpaces = [](std::string& txt) {
+			if (txt == "")
+				return;
+			while (txt.rfind(" ") == txt.size() - 1)
+				txt = txt.substr(0, txt.size() - 1);
+		};
 
 		//Good: While file is open. 
 		while (file.good()) { 
-		
+			
 			std::getline(file, line);
+			removeTrailingSpaces(line);
 			pos = line.find(" ");
-
 			// Empty line, continue to next.
+			if (line.size() == 0) {
+				continue;
+			}
 			if (pos == std::string::npos) { 
 			
 				continue;
@@ -155,7 +166,6 @@ namespace scuff3d {
 
 				line = line.substr(pos + 1);
 				std::vector<std::vector<int>> faceData;
-
 				
 				while (pos != std::string::npos) {
 					pos = line.find(" ");

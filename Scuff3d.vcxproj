@@ -125,6 +125,7 @@
     <ClInclude Include="Src\Rendering\API\Geometry\Mesh.h" />
     <ClInclude Include="Src\Rendering\API\Geometry\ModelData.h" />
     <ClInclude Include="Src\Rendering\API\Geometry\TransformData.h" />
+    <ClInclude Include="Src\Rendering\API\Lights\LightStructures.h" />
     <ClInclude Include="Src\Rendering\API\Shader\Shader.h" />
     <ClInclude Include="Src\Rendering\DX11\Model\ModelDX11.h" />
     <ClInclude Include="Src\Rendering\DX11\Shaders\PixelShaderDX11.h" />
